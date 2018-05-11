@@ -56,6 +56,7 @@ cd /app
 export gcc_ver=6.4.0
 export cmake_ver=3.10.1
 export openmpi_ver=2.1.0
+export pkgconf=1.4.2
 
 git clone https://github.com/spack/spack.git
 export SPACK_ROOT=/app/spack
@@ -69,7 +70,7 @@ sed -i '/prefix_inspections:/ i \ \ tcl: \
     hash_length: 0' $SPACK_ROOT/etc/spack/modules.yaml
 
 # GCC
-spack install gcc@$gcc_ver
+spack install gcc@$gcc_ver %pkgconf@1.4.2
 module load gcc-$gcc_ver-gcc-4.8.5
 spack compiler add
 spack compiler find
