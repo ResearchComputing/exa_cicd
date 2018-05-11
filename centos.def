@@ -62,32 +62,3 @@ cd openmpi-2.1.2/
 make -j2
 make install
 cd ..
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
