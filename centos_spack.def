@@ -56,7 +56,7 @@ cd /app
 export gcc_ver=6.4.0
 export cmake_ver=3.10.1
 export openmpi_ver=2.1.0
-export pkgconf=1.4.2
+export pkgconf=1.3.10
 
 git clone https://github.com/spack/spack.git
 export SPACK_ROOT=/app/spack
