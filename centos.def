@@ -21,10 +21,6 @@ yum install -y perftest qperf
 yum install -y libibverbs libibverbs-devel rdma
 yum install -y numactl-libs numactl-devel
 
-# Environment modules
-yum install -y Lmod
-source /etc/profile.d/z00_lmod.sh
-
 # Other useful libraries
 yum install -y pciutils
 yum install -y which
@@ -61,4 +57,3 @@ cd openmpi-2.1.2/
 --enable-mpi-thread-multiple
 make -j2
 make install
-cd ..
