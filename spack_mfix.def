@@ -1,0 +1,76 @@
+#BootStrap: shub
+#From: AaronTHolt/openmpi_singularity
+#Bootstrap: localimage
+#From: mfix_base.img
+
+
+%files
+mfix /app
+
+
+%post
+
+chown -R spack:spack /app/mfix
+su - spack
+source /etc/profile
+SPACK_ROOT=/app/spack
+export SPACK_ROOT
+source $SPACK_ROOT/share/spack/setup-env.sh
+module avail
+cd /app
+export gcc_ver=6.4.0
+export cmake_ver=3.10.1
+export openmpi_ver=2.1.0
+#echo 'export gcc_ver=6.4.0' >> $SINGULARITY_ENVIRONMENT
+#echo 'export openmpi_ver=2.1.0' >> $SINGULARITY_ENVIRONMENT
+#echo 'export cmake_ver=3.10.1' >> $SINGULARITY_ENVIRONMENT
+
+module load cmake-$cmake_ver-gcc-$gcc_ver
+module load gcc-$gcc_ver-gcc-4.8.5
+module load openmpi-$openmpi_ver-gcc-$gcc_ver
+
+cd /app/mfix
+#git checkout develop
+mkdir build
+cd build
+cmake -DCMAKE_CXX_COMPILER=mpic++ -DCMAKE_Fortran_COMPILER=mpif90 -DCMAKE_C_COMPILER=mpicc -DCMAKE_BUILD_TYPE=RelWithDebInfo -DAMREX_ENABLE_TINY_PROFILE=1 ..
+make -j4
+#echo 'export MFIX=/app/mfix/build/mfix' >> $SINGULARITY_ENVIRONMENT
+
+
+
+# Edit command prompt so its short and shows you in a container
+export PS1="Singularity > "
+
+
+
+######################################################
+%environment
+export gcc_ver=6.4.0
+export cmake_ver=3.10.1
+export openmpi_ver=2.1.0
+
+source /etc/profile
+SPACK_ROOT=/app/spack
+export SPACK_ROOT
+source $SPACK_ROOT/share/spack/setup-env.sh
+
+module load cmake-$cmake_ver-gcc-$gcc_ver
+module load gcc-$gcc_ver-gcc-4.8.5
+module load openmpi-$openmpi_ver-gcc-$gcc_ver
+
+MFIX=/app/mfix/build/mfix/mfix
+export MFIX
+
+######################################################
+%runscript
+export MFIX=/app/mfix/build/mfix/mfix
+echo $MFIX 
+
+
+
+
+
+
+#
+
