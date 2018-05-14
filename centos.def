@@ -57,3 +57,6 @@ cd openmpi-2.1.2/
 --enable-mpi-thread-multiple
 make -j2
 make install
+
+# Location to install exa
+mkdir -p /app
