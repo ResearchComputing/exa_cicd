@@ -6,7 +6,7 @@
 ##SBATCH --output normal.out
 #SBATCH --reservation bench-bandwidth
 
-ml singularity/2.4.2 gcc/6.1.0 openmpi/2.0.1
+ml singularity/2.4.2 gcc/6.1.0
 
 export MFIX=/app/mfix/build/mfix/mfix
 export WD=/scratch/summit/holtat/sing
