@@ -10,7 +10,7 @@ ml singularity/2.4.2 gcc/6.1.0
 
 export MFIX=/app/mfix/build/mfix/mfix
 export WD=/scratch/summit/holtat/sing
-export IMAGE=/scratch/summit/holtat/sing/mfix.img
+export IMAGE=/curc/tools/images/holtat/mfix_fulllatest.simg
 export MPIRUN=/projects/holtat/spack/opt/spack/linux-rhel7-x86_64/gcc-6.1.0/openmpi-2.1.0-4wsyjochpemaio57jlxq274utszh5are/bin/mpirun
 
 ## Formatting for output files
