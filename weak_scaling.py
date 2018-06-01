@@ -152,7 +152,7 @@ class process(object):
         num_funcs = string that contains names of a function (dataframe column name)'''
 
         fig, ax = plt.subplots()
-        sub_df = None
+        sub_df = self.df
 
         if not start_date:
             start_date = sorted(self.df.Date.tolist())[0]
@@ -161,18 +161,24 @@ class process(object):
         if not func_name:
             func_name = 'Total'
 
+        # Get x ticks (account for missing points)
+        sub_df = sub_df[sub_df['Date'] >= start_date]
+        sub_df = sub_df[sub_df['Date'] <= end_date]
+        datehash = sorted(list(set(sub_df['DateHash'].tolist())))
+
+        # Get data for a specific NP between start and end dates, sort by commit date
         for num_proc in num_proc_list:
             
             sub_df = self.df[self.df.NP == num_proc]
             sub_df = sub_df[sub_df['Date'] >= start_date]
             sub_df = sub_df[sub_df['Date'] <= end_date]
             sub_df = sub_df.sort_values(by=['DateHash'])
-            #print(sub_df)
+            #print(sub_df['DateHash'])
 
             ax = sub_df.plot(ax=ax, kind='line', x='DateHash', y=func_name,
                             label=num_proc, marker=".")
-
-        datehash = sorted(list(set(sub_df['DateHash'].tolist())))
+            
+        
 
         ax.set(title="{case} {func_name} Time vs Commit from {start} to {end}".format(case=case, 
                             func_name=func_name, start=start_date, end=end_date))
@@ -196,10 +202,11 @@ A.preprocess()
 A.prefill_dict()
 A.add_data_to_dict()
 A.dict_to_df()
-A.weak_scaling_one_commit(commit='777730c')
-A.weak_scaling_over_time(case='HCS', num_proc_list=[1, 4, 8, 16, 24])
-A.weak_scaling_over_time(case='HCS', num_proc_list=[1, 4, 8, 16, 24], func_name='solve_bicgstab')
-A.weak_scaling_over_time(case='HCS', num_proc_list=[1, 4, 8, 16, 24], func_name='calc_particle_collisions()')
+#A.weak_scaling_one_commit(commit='77c4f01')
+#A.weak_scaling_over_time(case='HCS', num_proc_list=[1, 4, 8, 16, 24])
+A.weak_scaling_over_time(case='HCS', num_proc_list=[1, 4])
+#A.weak_scaling_over_time(case='HCS', num_proc_list=[1, 4, 8, 16, 24], func_name='solve_bicgstab')
+#A.weak_scaling_over_time(case='HCS', num_proc_list=[1, 4, 8, 16, 24], func_name='calc_particle_collisions()')
 
 #
 #
