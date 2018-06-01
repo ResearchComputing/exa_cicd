@@ -173,9 +173,10 @@ class process(object):
             sub_df = sub_df[sub_df['Date'] >= start_date]
             sub_df = sub_df[sub_df['Date'] <= end_date]
             sub_df = sub_df.sort_values(by=['DateHash'])
-            #print(sub_df['DateHash'])
-
-            ax = sub_df.plot(ax=ax, kind='line', x='DateHash', y=func_name,
+            
+            # Plot x points so they're alligned with xticks properly (fixes issues with missing points)
+            sub_df['x_vals'] = [datehash.index(x) for x in sub_df['DateHash']]
+            ax = sub_df.plot(ax=ax, kind='line', x='x_vals', y=func_name,
                             label=num_proc, marker=".")
             
         
