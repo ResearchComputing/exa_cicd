@@ -34,3 +34,12 @@ for dir in {np_00001,np_00004,np_00008,np_00016,np_00024}; do
     $MPIRUN -np 24 singularity exec $IMAGE bash -c "cd $WD/$dir; $MFIX inputs >> ${DATE}_${HASH}_${dir}"
 
 done
+
+
+## Copy results to projects
+cd $WD
+for dir in {np_00001,np_00004,np_00008,np_00016,np_00024}; do
+    cp ${dir}/${DATE}_${HASH}* /projects/holtat/CICD/results/weak_scaling_small/${dir}
+done
+
+#for ii in np_*; do cp -v $ii/2018* /projects/holtat/CICD/results/weak_scaling_small/${ii}/; done
