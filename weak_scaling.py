@@ -13,7 +13,7 @@ class process(object):
         '''base_dir is the directory where this will be run, it should
         contain the directories in dir_list.
         num_funcs is the number of top functions to track'''
-        self.base_dir = base_dir     
+        self.base_dir = base_dir
         self.dir_list = dir_list     #directory list containing runs from a different number of cpus
         self.columns = set()         #columns in dataframe
         self.columns.add('Total')
@@ -28,7 +28,7 @@ class process(object):
 
     def preprocess(self):
         '''base_dir = direcotry where all the data directories are located
-        dir_list = list of directories in base dir to search for data, named after 
+        dir_list = list of directories in base dir to search for data, named after
         the number of processors that were run for that test
         num_funcs = Find top num_func functions to collect data on later
         columns = set of most time consuming functions to colelct data on,
@@ -70,7 +70,7 @@ class process(object):
                             self.columns.add(self.content[filename][self.startlines[filename] + jj].split()[0])
             #print(self.columns)
         self.columns = sorted(list(self.columns))
-    
+
     def prefill_dict(self):
         '''results = nested dictionary with lists filled with nan'''
         # Prefill dictionary with nan
@@ -83,21 +83,21 @@ class process(object):
                     date = filename.split("_")[0]
                     short_hash = filename.split("_")[1]
                     self.results[date][short_hash][np] = []
-    
+
                     # total, all funtions
                     for jj in range(0, len(self.columns)):
                         self.results[date][short_hash][np].append(float('nan'))
-    
+
 
 
     def add_data_to_dict(self):
-        
+
         for filename, lines in self.content.items():
             fsplit = filename.split("_")
             date = fsplit[0]
             short_hash = fsplit[1]
             np = int(fsplit[3])
-            
+
             for line_num, line in enumerate(lines):
                 if line_num >= self.startlines[filename] and line_num <= self.endlines[filename]:
                     # Loop through functions and get times
@@ -112,7 +112,7 @@ class process(object):
     # Dictionary to dataframe
     def dict_to_df(self):
         self.df = pd.DataFrame(index=np.arange(0, self.num_rows), columns=['Date', 'Hash', 'NP']+self.columns)
-    
+
         ii = 0
         for key1, val1 in self.results.items():
             for key2, val2 in self.results[key1].items():
@@ -132,7 +132,7 @@ class process(object):
     def weak_scaling_one_commit(self, commit):
         sub_df = self.df[self.df.Hash == commit]
         #print(sub_df)
-        
+
         date = sub_df.Date.tolist()[0]
 
         ax = sub_df.plot(kind='line', x='NP', y='Total',
@@ -146,7 +146,7 @@ class process(object):
 
     def weak_scaling_over_time(self, num_proc_list=[1], case=None,
                                 start_date=None, end_date=None, func_name=None):
-        '''case is a string of the casename, used in plot title (ex 'HCS') 
+        '''case is a string of the casename, used in plot title (ex 'HCS')
         date format is a string yyyymmdd
         num_proc_list = list containing processor counts to plot (ex [1, 2, 4, 8, 16, 32])
         num_funcs = string that contains names of a function (dataframe column name)'''
@@ -168,20 +168,20 @@ class process(object):
 
         # Get data for a specific NP between start and end dates, sort by commit date
         for num_proc in num_proc_list:
-            
+
             sub_df = self.df[self.df.NP == num_proc]
             sub_df = sub_df[sub_df['Date'] >= start_date]
             sub_df = sub_df[sub_df['Date'] <= end_date]
             sub_df = sub_df.sort_values(by=['DateHash'])
-            
+
             # Plot x points so they're alligned with xticks properly (fixes issues with missing points)
             sub_df['x_vals'] = [datehash.index(x) for x in sub_df['DateHash']]
             ax = sub_df.plot(ax=ax, kind='line', x='x_vals', y=func_name,
                             label=num_proc, marker=".")
-            
-        
 
-        ax.set(title="{case} {func_name} Time vs Commit from {start} to {end}".format(case=case, 
+
+
+        ax.set(title="{case} {func_name} Time vs Commit from {start} to {end}".format(case=case,
                             func_name=func_name, start=start_date, end=end_date))
         ax.set(xlabel="Date, Commit", ylabel="Total Time (s)")
         ax.set_xticklabels(datehash, rotation=30, horizontalalignment='right')
@@ -190,71 +190,11 @@ class process(object):
         patches, labels = ax.get_legend_handles_labels()
         lgd = ax.legend(patches, labels, title="NP", loc='upper left', bbox_to_anchor=(1,1))
         fig = ax.get_figure()
-        fig.savefig("{case}_{func_name}_{start}_{end}.png".format(case=case, 
+        fig.savefig("{case}_{func_name}_{start}_{end}.png".format(case=case,
                             func_name=func_name, start=start_date, end=end_date),
                     bbox_extra_artists=(lgd,), bbox_inches='tight')
 
 
-A = process(base_dir='/scratch/summit/holtat/sing',
-             dir_list=['np_00001', 'np_00004', 'np_00008', 'np_00016', 'np_00024'], 
-             num_funcs=10)
-
-A.preprocess()
-A.prefill_dict()
-A.add_data_to_dict()
-A.dict_to_df()
-#A.weak_scaling_one_commit(commit='77c4f01')
-#A.weak_scaling_over_time(case='HCS', num_proc_list=[1, 4, 8, 16, 24])
-A.weak_scaling_over_time(case='HCS', num_proc_list=[1, 4])
-#A.weak_scaling_over_time(case='HCS', num_proc_list=[1, 4, 8, 16, 24], func_name='solve_bicgstab')
-#A.weak_scaling_over_time(case='HCS', num_proc_list=[1, 4, 8, 16, 24], func_name='calc_particle_collisions()')
-
-#
 #
 ##https://stackoverflow.com/questions/29233283/plotting-multiple-lines-with-pandas-dataframe
-#
-#datehash = sorted([('2018-03-16', '86a0756'), ('2018-03-14', '57e8e2c'), ('2018-03-12', 'b119a72')])
-#
-######## One-off for paper #########
-#fig, ax = plt.subplots()
-#
-## want NP=label, x=(date,hash), y=TotalTime
-#
-#for num_proc in [1,4,8,16,24]:
-#    x = []
-#    sub_df = df[df.NP == num_proc]
-#    sub_df = sub_df.sort_values(by=['DateHash'])
-#    #print(sub_df['DateHash'].tolist(), sub_df['Total'].tolist())
-#    ax = sub_df.plot(ax=ax, kind='line', x='DateHash', y='Total',
-#            label=num_proc, marker=".")
-#
-#sub_df = df[df.NP == 1]
-#sub_df = sub_df.sort_values(by=['DateHash'])
-##print(sub_df)
-#
-##xticks=sub_df['DateHash'].tolist()
-#ax.set(title="HCS Time vs Commit")
-#ax.set(xlabel="Date, Commit", ylabel="Total Time (s)")
-#ax.set_xticklabels(datehash, rotation=30, horizontalalignment='right')
-#ax.set_xticks(list(range(0, len(datehash))))
-#ax.set_xlim(-0.1, len(datehash)-0.9)
-#
-##labels = ax.get_xticklabels()
-##locs = ax.get_xticks()
-##print(locs, labels)
-#
-#
-##plt.setp(ax.get_xticklabels(), rotation=30, horizontalalignment='left')
-#patches, labels = ax.get_legend_handles_labels()
-#lgd = ax.legend(patches, labels, title="NP", loc='upper left', bbox_to_anchor=(1,1))
-#fig = ax.get_figure()
-#fig.savefig("output3.png", bbox_extra_artists=(lgd,), bbox_inches='tight')
-
-
-
-
-
-
-
-
 #

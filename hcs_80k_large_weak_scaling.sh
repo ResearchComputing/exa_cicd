@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --nodes 1
+#SBATCH --nodes 9
 #SBATCH --exclusive
 #SBATCH --account ucb1_summit1
 #SBATCH --time 04:00:00
@@ -9,7 +9,7 @@
 ml singularity/2.4.2 gcc/6.1.0
 
 export MFIX=/app/mfix/build/mfix/mfix
-export WD=/scratch/summit/holtat/sing
+export WD=/scratch/summit/holtat/hcs_80k_large_weak_scaling
 export IMAGE=/scratch/summit/holtat/singularity/holtat-mfix_full:latest.simg
 export MPIRUN=/projects/holtat/spack/opt/spack/linux-rhel7-x86_64/gcc-6.1.0/openmpi-2.1.2-foemyxg2vl7b3l57e7vhgqtlwggubj3a/bin/mpirun
 
@@ -31,11 +31,12 @@ echo $DATE
 echo $HASH
 echo $SLURM_NODELIST
 
-cp info.txt /projects/holtat/CICD/results/weak_scaling_small/metadata/${DATE}_${HASH}.txt
+## Save info
+cp info.txt /projects/holtat/CICD/results/hcs_80k_large_weak_scaling/metadata/${DATE}_${HASH}.txt
 
-for dir in {np_00001,np_00004,np_00008,np_00016,np_00024}; do
+for dir in {np_00001,np_00008,np_00027,np_00064,np_00125,np_00216}; do
 
-    # Make dir if needed
+    # Make directory if needed
     mkdir -p $WD/$dir
     cd $WD/$dir
     pwd
@@ -49,8 +50,8 @@ done
 
 ## Copy results to projects
 cd $WD
-for dir in {np_00001,np_00004,np_00008,np_00016,np_00024}; do
-    cp ${dir}/${DATE}_${HASH}* /projects/holtat/CICD/results/weak_scaling_small/${dir}
+for dir in {np_00001,np_00008,np_00027,np_00064,np_00125,np_00216}; do
+    cp ${dir}/${DATE}_${HASH}* /projects/holtat/CICD/results/hcs_80k_large_weak_scaling/${dir}
 done
 
 #for ii in np_*; do cp -v $ii/2018* /projects/holtat/CICD/results/weak_scaling_small/${ii}/; done
