@@ -51,7 +51,7 @@ done
 ## Copy results to projects
 cd $WD
 for dir in {np_00001,np_00008,np_00027,np_00064,np_00125,np_00216}; do
-    cp ${dir}/${DATE}_${HASH}* /projects/holtat/CICD/results/hcs_80k_large_weak_scaling/${dir}
+    cp ${dir}/${DATE}_${HASH}* /projects/holtat/CICD/results/hcs_80k_large_weak_scaling/${dir}/
 done
 
 #for ii in np_*; do cp -v $ii/2018* /projects/holtat/CICD/results/weak_scaling_small/${ii}/; done
