@@ -1,10 +1,14 @@
 from collections import defaultdict
+import math
 import os
+import sys
 import fileinput
 import numpy as np
 import pandas as pd
+#import plotly.plotly as py
+#import plotly.graph_objs as go
+#import cufflinks as cf
 import matplotlib.pyplot as plt
-
 
 
 class process(object):
@@ -46,9 +50,18 @@ class process(object):
             # and make dataframe using these results
             for filename in os.listdir(directory):
                 if ii in filename:
-                    self.num_rows += 1
                     with open(directory + '/' + filename, 'r') as f:
 
+                        #print(filename)
+                        if self.check_file(f) == False:
+                            ## DELETE OR MOVE THESE FILES?
+                            #print(filename)
+                            continue
+
+                        self.num_rows += 1
+
+                        #sys.exit(0)
+                        
                         self.content[filename] = f.readlines()
 
                         # Find start and end of exclusive function data in mfix output
@@ -67,9 +80,24 @@ class process(object):
 
                         # add function names to set
                         for jj in range(0, self.num_funcs):
+                            #try:
                             self.columns.add(self.content[filename][self.startlines[filename] + jj].split()[0])
+                            #except:
+                            #    print(filename)
+                            #    print(jj, len(self.content[filename]))
+                            #    sys.exit(0)
             #print(self.columns)
         self.columns = sorted(list(self.columns))
+
+    def check_file(self, open_file):
+        '''Check if results file has required keyword'''
+        keywords = ['TinyProfiler', 'Time spent in main']
+        for ii in keywords:
+            if open_file.read().find(ii) == -1:
+                return False
+            else:
+                open_file.seek(0)
+        return True
 
     def prefill_dict(self):
         '''results = nested dictionary with lists filled with nan'''
@@ -131,7 +159,6 @@ class process(object):
 
     def weak_scaling_one_commit(self, commit):
         sub_df = self.df[self.df.Hash == commit]
-        #print(sub_df)
 
         date = sub_df.Date.tolist()[0]
 
@@ -156,23 +183,66 @@ class process(object):
 
         if not start_date:
             start_date = sorted(self.df.Date.tolist())[0]
+        else:
+            start_date = str(start_date[0:4])+'-'+str(start_date[4:6])+'-'+str(start_date[6:8])
         if not end_date:
             end_date = sorted(self.df.Date.tolist())[-1]
+        else:
+            end_date = str(end_date[0:4])+'-'+str(end_date[4:6])+'-'+str(end_date[6:8])
         if not func_name:
             func_name = 'Total'
+
+        print(start_date, end_date)
 
         # Get x ticks (account for missing points)
         sub_df = sub_df[sub_df['Date'] >= start_date]
         sub_df = sub_df[sub_df['Date'] <= end_date]
         datehash = sorted(list(set(sub_df['DateHash'].tolist())))
+        
+#        # Find most points for a given NP
+#        total_rows = 0
+#        for num_proc in num_proc_list:
+#            total_rows = max(total_rows, sub_df.loc[sub_df['NP'] == num_proc].shape[0])
+#
+#        if total_rows > 20:
+#            sub_df = self.df[self.df.NP == 1]
+#            N = 10
+#            sub_df_end = sub_df.tail(N)
+#
+#            # Sample earlier points evenly
+#            slices = math.ceil((float(total_rows-N)/float(N)))
+#            sub_df_start = sub_df.head(total_rows - N)
+#            sub_df_start = sub_df_start.iloc[::slices, :]
+#            sub_df = pd.concat([sub_df_start, sub_df_end])
+#            datehash = sorted(list(set(sub_df['DateHash'].tolist())))
 
         # Get data for a specific NP between start and end dates, sort by commit date
         for num_proc in num_proc_list:
 
             sub_df = self.df[self.df.NP == num_proc]
+            #sub_df = sub_df[sub_df.NP == num_proc]
             sub_df = sub_df[sub_df['Date'] >= start_date]
             sub_df = sub_df[sub_df['Date'] <= end_date]
             sub_df = sub_df.sort_values(by=['DateHash'])
+            
+#            #Plots are only legible with ~20 points. Use the latest N points and a sampling
+#            #of the rest of the points
+#            total_rows = sub_df.shape[0]
+#            if total_rows > 20:
+#                print(total_rows)
+#                N = 10
+#                sub_df_end = sub_df.tail(N)
+#                
+#                # Sample earlier points evenly
+#                slices = math.ceil((float(total_rows-N)/float(N)))
+#                sub_df_start = sub_df.head(total_rows - N)
+#                sub_df_start = sub_df_start.iloc[::slices, :]
+#                sub_df = pd.concat([sub_df_start, sub_df_end])
+                
+
+#                # Fix x-ticks to only use plotted points
+#                if total_rows > len(datehash):
+#                    datehash = sorted(list(set(sub_df['DateHash'].tolist())))
 
             # Plot x points so they're alligned with xticks properly (fixes issues with missing points)
             sub_df['x_vals'] = [datehash.index(x) for x in sub_df['DateHash']]
@@ -193,6 +263,62 @@ class process(object):
         fig.savefig("{case}_{func_name}_{start}_{end}.png".format(case=case,
                             func_name=func_name, start=start_date, end=end_date),
                     bbox_extra_artists=(lgd,), bbox_inches='tight')
+
+
+
+    def weak_scaling_over_time_2(self, num_proc_list=[1], case=None,
+                                start_date=None, end_date=None, func_name=None):
+        '''case is a string of the casename, used in plot title (ex 'HCS')
+        date format is a string yyyymmdd
+        num_proc_list = list containing processor counts to plot (ex [1, 2, 4, 8, 16, 32])
+        num_funcs = string that contains names of a function (dataframe column name)'''
+
+        fig, ax = plt.subplots()
+        sub_df = self.df
+
+        if not start_date:
+            start_date = sorted(self.df.Date.tolist())[0]
+        if not end_date:
+            end_date = sorted(self.df.Date.tolist())[-1]
+        if not func_name:
+            func_name = 'Total'
+
+        # Get x ticks (account for missing points)
+        sub_df = sub_df[sub_df['Date'] >= start_date]
+        sub_df = sub_df[sub_df['Date'] <= end_date]
+        datehash = sorted(list(set(sub_df['DateHash'].tolist())))
+
+        
+        traces = []
+
+        # Get data for a specific NP between start and end dates, sort by commit date
+        for num_proc in num_proc_list:
+
+            sub_df = self.df[self.df.NP == num_proc]
+            sub_df = sub_df[sub_df['Date'] >= start_date]
+            sub_df = sub_df[sub_df['Date'] <= end_date]
+            sub_df = sub_df.sort_values(by=['DateHash'])
+
+            # Plot x points so they're alligned with xticks properly (fixes issues with missing points)
+            sub_df['x_vals'] = [datehash.index(x) for x in sub_df['DateHash']]
+            #ax = sub_df.plot(ax=ax, kind='line', x='x_vals', y=func_name,
+            #                label=num_proc, marker=".")
+            traces.append(go.Scatter(
+            x = sub_df['Date'],
+            y = sub_df[func_name],
+            name = "NP = {np}".format(np=num_proc),
+            line = dict(color = ('rgb(205, 12, 24)'),
+                        width = 4,
+                        dash = 'dash')))
+
+        layout = dict(title = "{case} {func_name} Time vs Commit from {start} to {end}".format(case=case,
+                            func_name=func_name, start=start_date, end=end_date),
+                      xaxis = dict(title = "Date, Commit"),
+                      yaxis = dict(title = "Time (s)"),
+                      )
+        fig = dict(data=traces, layout=layout)
+        py.iplot(fig, filename="{case}_{func_name}_{start}_{end}".format(case=case,
+                            func_name=func_name, start=start_date, end=end_date))
 
 
 #
