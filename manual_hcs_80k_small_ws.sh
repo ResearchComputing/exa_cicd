@@ -9,6 +9,7 @@
 #Input to Commit number
 export COMMIT=$1
 
+source /etc/profile.d/lmod.sh
 ml singularity/2.4.2 gcc/6.1.0
 
 export MFIX=/app/mfix/build/mfix/mfix
