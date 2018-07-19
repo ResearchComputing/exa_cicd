@@ -26,6 +26,7 @@ singularity exec $IMAGE bash -c "cd /app/mfix; git log -n 1 --pretty=format:'%h'
 echo '' >> info.txt
 ## Nodelist
 echo $SLURM_NODELIST >> info.txt
+echo '' >> info.txt
 ## Modules
 ml 2>&1 | grep 1 >> info.txt
 
