@@ -258,7 +258,7 @@ class process(object):
         ax.set_xticks(list(range(0, len(datehash))))
         ax.set_xlim(-0.1, len(datehash)-0.9)
         patches, labels = ax.get_legend_handles_labels()
-        lgd = ax.legend(patches, labels, title="NP", loc='upper left', bbox_to_anchor=(1,1))
+        lgd = ax.legend(patches[::-1], labels[::-1], title="NP", loc='upper left', bbox_to_anchor=(1,1))
         fig = ax.get_figure()
         fig.savefig("{case}_{func_name}_{start}_{end}.png".format(case=case,
                             func_name=func_name, start=start_date, end=end_date),
@@ -266,59 +266,59 @@ class process(object):
 
 
 
-    def weak_scaling_over_time_2(self, num_proc_list=[1], case=None,
-                                start_date=None, end_date=None, func_name=None):
-        '''case is a string of the casename, used in plot title (ex 'HCS')
-        date format is a string yyyymmdd
-        num_proc_list = list containing processor counts to plot (ex [1, 2, 4, 8, 16, 32])
-        num_funcs = string that contains names of a function (dataframe column name)'''
-
-        fig, ax = plt.subplots()
-        sub_df = self.df
-
-        if not start_date:
-            start_date = sorted(self.df.Date.tolist())[0]
-        if not end_date:
-            end_date = sorted(self.df.Date.tolist())[-1]
-        if not func_name:
-            func_name = 'Total'
-
-        # Get x ticks (account for missing points)
-        sub_df = sub_df[sub_df['Date'] >= start_date]
-        sub_df = sub_df[sub_df['Date'] <= end_date]
-        datehash = sorted(list(set(sub_df['DateHash'].tolist())))
-
-        
-        traces = []
-
-        # Get data for a specific NP between start and end dates, sort by commit date
-        for num_proc in num_proc_list:
-
-            sub_df = self.df[self.df.NP == num_proc]
-            sub_df = sub_df[sub_df['Date'] >= start_date]
-            sub_df = sub_df[sub_df['Date'] <= end_date]
-            sub_df = sub_df.sort_values(by=['DateHash'])
-
-            # Plot x points so they're alligned with xticks properly (fixes issues with missing points)
-            sub_df['x_vals'] = [datehash.index(x) for x in sub_df['DateHash']]
-            #ax = sub_df.plot(ax=ax, kind='line', x='x_vals', y=func_name,
-            #                label=num_proc, marker=".")
-            traces.append(go.Scatter(
-            x = sub_df['Date'],
-            y = sub_df[func_name],
-            name = "NP = {np}".format(np=num_proc),
-            line = dict(color = ('rgb(205, 12, 24)'),
-                        width = 4,
-                        dash = 'dash')))
-
-        layout = dict(title = "{case} {func_name} Time vs Commit from {start} to {end}".format(case=case,
-                            func_name=func_name, start=start_date, end=end_date),
-                      xaxis = dict(title = "Date, Commit"),
-                      yaxis = dict(title = "Time (s)"),
-                      )
-        fig = dict(data=traces, layout=layout)
-        py.iplot(fig, filename="{case}_{func_name}_{start}_{end}".format(case=case,
-                            func_name=func_name, start=start_date, end=end_date))
+#    def weak_scaling_over_time_2(self, num_proc_list=[1], case=None,
+#                                start_date=None, end_date=None, func_name=None):
+#        '''case is a string of the casename, used in plot title (ex 'HCS')
+#        date format is a string yyyymmdd
+#        num_proc_list = list containing processor counts to plot (ex [1, 2, 4, 8, 16, 32])
+#        num_funcs = string that contains names of a function (dataframe column name)'''
+#
+#        fig, ax = plt.subplots()
+#        sub_df = self.df
+#
+#        if not start_date:
+#            start_date = sorted(self.df.Date.tolist())[0]
+#        if not end_date:
+#            end_date = sorted(self.df.Date.tolist())[-1]
+#        if not func_name:
+#            func_name = 'Total'
+#
+#        # Get x ticks (account for missing points)
+#        sub_df = sub_df[sub_df['Date'] >= start_date]
+#        sub_df = sub_df[sub_df['Date'] <= end_date]
+#        datehash = sorted(list(set(sub_df['DateHash'].tolist())))
+#
+#        
+#        traces = []
+#
+#        # Get data for a specific NP between start and end dates, sort by commit date
+#        for num_proc in num_proc_list:
+#
+#            sub_df = self.df[self.df.NP == num_proc]
+#            sub_df = sub_df[sub_df['Date'] >= start_date]
+#            sub_df = sub_df[sub_df['Date'] <= end_date]
+#            sub_df = sub_df.sort_values(by=['DateHash'])
+#
+#            # Plot x points so they're alligned with xticks properly (fixes issues with missing points)
+#            sub_df['x_vals'] = [datehash.index(x) for x in sub_df['DateHash']]
+#            #ax = sub_df.plot(ax=ax, kind='line', x='x_vals', y=func_name,
+#            #                label=num_proc, marker=".")
+#            traces.append(go.Scatter(
+#            x = sub_df['Date'],
+#            y = sub_df[func_name],
+#            name = "NP = {np}".format(np=num_proc),
+#            line = dict(color = ('rgb(205, 12, 24)'),
+#                        width = 4,
+#                        dash = 'dash')))
+#
+#        layout = dict(title = "{case} {func_name} Time vs Commit from {start} to {end}".format(case=case,
+#                            func_name=func_name, start=start_date, end=end_date),
+#                      xaxis = dict(title = "Date, Commit"),
+#                      yaxis = dict(title = "Time (s)"),
+#                      )
+#        fig = dict(data=traces, layout=layout)
+#        py.iplot(fig, filename="{case}_{func_name}_{start}_{end}".format(case=case,
+#                            func_name=func_name, start=start_date, end=end_date))
 
 
 #
