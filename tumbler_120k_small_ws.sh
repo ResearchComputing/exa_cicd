@@ -13,7 +13,7 @@ source /etc/profile.d/lmod.sh
 ml singularity/2.4.2 gcc/6.1.0
 
 export MFIX=/app/mfix/build/mfix/mfix
-export WD=/scratch/summit/holtat/sing
+export WD=/scratch/summit/holtat/tumbler_120k_small
 export IMAGE=/scratch/summit/holtat/singularity/holtat-mfix_full:develop_${COMMIT}.simg
 export MPIRUN=/projects/holtat/spack/opt/spack/linux-rhel7-x86_64/gcc-6.1.0/openmpi-2.1.2-foemyxg2vl7b3l57e7vhgqtlwggubj3a/bin/mpirun
 
@@ -39,7 +39,7 @@ echo $SLURM_NODELIST
 mkdir -p /projects/holtat/CICD/results/tumbler_120k_small/metadata
 cp info.txt /projects/holtat/CICD/results/tumbler_120k_small/metadata/${DATE}_${HASH}.txt
 
-for dir in {np_00001,np_00004,np_00008,np_00016,np_00024}; do
+for dir in {np_00001,np_00008,np_00027,np_00064}; do
 
     # Make dir if needed
     mkdir -p $WD/$dir
@@ -55,7 +55,7 @@ done
 
 ## Copy results to projects
 cd $WD
-for dir in {np_00001,np_00004,np_00008,np_00016,np_00024}; do
+for dir in {np_00001,np_00008,np_00027,np_00064}; do
     mkdir -p /projects/holtat/CICD/results/tumbler_120k_small/${dir}
     cp ${dir}/${DATE}_${HASH}* /projects/holtat/CICD/results/tumbler_120k_small/${dir}/
 done
