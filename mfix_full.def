@@ -66,7 +66,7 @@ mv /mfix /app
 cd /app/mfix
 mkdir build
 cd build
-cmake -DCMAKE_CXX_COMPILER=mpic++ -DCMAKE_Fortran_COMPILER=mpif90 -DCMAKE_C_COMPILER=mpicc -DMFIX_CXX_FLAGS='-O2 -g -mavx2' -DMFIX_Fortran_FLAGS='-O2 -g -mavx2' -DCMAKE_BUILD_TYPE=RelWithDebInfo -DAMREX_ENABLE_TINY_PROFILING=1 ..
+cmake -DCMAKE_CXX_COMPILER=mpic++ -DCMAKE_Fortran_COMPILER=mpif90 -DCMAKE_C_COMPILER=mpicc -DCMAKE_BUILD_TYPE=RelWithDebInfo -DAMREX_ENABLE_TINY_PROFILE=1 ..
 make -j4
 
 # Edit command prompt so its short and shows you in a container
@@ -83,4 +83,3 @@ export MFIX
 %runscript
 export MFIX=/app/mfix/build/mfix/mfix
 echo $MFIX
-
