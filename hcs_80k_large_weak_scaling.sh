@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --nodes 9
 #SBATCH --exclusive
-#SBATCH --account ucb1_summit1
+#SBATCH --account ucb1_summit2
 #SBATCH --time 04:00:00
 ##SBATCH --output normal.out
 ##SBATCH --reservation bench-bandwidth
