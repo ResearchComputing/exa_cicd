@@ -6,7 +6,7 @@
 ##SBATCH --output normal.out
 ##SBATCH --reservation bench-bandwidth
 
-ml singularity/2.4.2 gcc/6.1.0
+ml singularity/2.5.2 gcc/6.1.0
 
 export MFIX=/app/mfix/build/mfix/mfix
 export WD=/scratch/summit/holtat/hcs_80k_large_weak_scaling
