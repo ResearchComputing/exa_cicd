@@ -20,13 +20,13 @@ export MPIRUN=/projects/holtat/spack/opt/spack/linux-rhel7-x86_64/gcc-6.1.0/open
 ## Formatting for output files
 ## Latest commit date, format: 2018-02-19 12:44:03 -0800
 singularity exec $IMAGE bash -c "cd /app/mfix; git log -n 1 --pretty=format:'%ai'" > info.txt
-echo '' >> info.txt
+printf "\n" >> info.txt
 ## Shortened latest commit hash, format: b119a72
 singularity exec $IMAGE bash -c "cd /app/mfix; git log -n 1 --pretty=format:'%h'" >> info.txt
-echo '' >> info.txt
+printf "\n" >> info.txt
 ## Nodelist
 echo $SLURM_NODELIST >> info.txt
-echo '' >> info.txt
+printf "\n" >> info.txt
 ## Modules
 ml 2>&1 | grep 1 >> info.txt
 
