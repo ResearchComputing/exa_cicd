@@ -42,7 +42,7 @@ echo $SLURM_NODELIST
 mkdir -p /projects/holtat/CICD/results/tumbler_120k_large/metadata
 cp ${COMMIT}_info.txt /projects/holtat/CICD/results/tumbler_120k_small/metadata/${DATE}_${HASH}.txt
 
-for dir in {np_00001 ,np_00008, np_00027, np_00064, np_00125, np_00216}; do
+for dir in {np_00001,np_00008,np_00027,np_00064,np_00125,np_00216}; do
 
     # Make dir if needed
     mkdir -p $WD/$dir
@@ -58,7 +58,7 @@ done
 
 ## Copy results to projects
 cd $WD
-for dir in {np_00001, np_00008, np_00027, np_00064, np_00125, np_00216}; do
+for dir in {np_00001,np_00008,np_00027,np_00064,np_00125,np_00216}; do
     mkdir -p /projects/holtat/CICD/results/tumbler_120k_large/${dir}
     cp ${dir}/${DATE}_${HASH}* /projects/holtat/CICD/results/tumbler_120k_large/${dir}/
 done
