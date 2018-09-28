@@ -1,13 +1,13 @@
-""" Default configuration for slurm scripts """
 
 class ScriptUtils:
+    """Create functions and variables for code reuse in mfix exa slurm scripts"""
 
-    def __init__(self, commit_hash=None):
+    def __init__(self, commit_hash):
+        """commit_hash = 7 character string, ex: 6b3f4ac"""
         self.mfix = "/app/mfix/build/mfix/mfix"
         self.base_working_dir = "/scratch/summit/holtat"
-        self.prefix_image_path = "/scratch/summit/holtat/singularity/holtat-mfix_full:develop_"
-        self.suffix_image_path = ".simg"
-        self.image_commit_hash = commit_hash # 7 character hash, ex: 6b3f4ac
+        self.commit_hash = commit_hash
+        self.image_path = "/scratch/summit/holtat/singularity/holtat-mfix_full:develop_" + self.commit_hash + ".simg"
         self.mpirun = "/projects/holtat/spack/opt/spack/linux-rhel7-x86_64/gcc-6.1.0/openmpi-2.1.2-foemyxg2vl7b3l57e7vhgqtlwggubj3a/bin/mpirun"
         self.modules = ["singularity/2.5.2", "gcc/6.1.0"] # Lmod modules to load
         self.mpi_processes = None # np list to be handed to mpirun, ex: [1, 8, 27, 64]
@@ -19,15 +19,20 @@ class ScriptUtils:
 
     def get_commit_date(self):
         """Get date of commit hash"""
-
-        pass
-
+        command = ['singularity', 'exec', self.image_path, 'bash', '-c', "cd /app/mfix; git log -n 1 --pretty=format:'%ai'"]
+        date = subprocess.check_output(command)
+        print(date)
+        return date
 
     def verify_git_hash(self):
         """Check that input commit matches the commit has
         fromthe git repo in the container"""
-
-        pass
+        command = ['singularity', 'exec', self.image_path, 'bash', '-c', "cd /app/mfix; git log -n 1 --pretty=format:'%h'"]
+        git_hash = subprocess.check_output(command)
+        print(git_hash, self.commit_hash)
+        if git_hash == self.commit_hash:
+            return True
+        return False
 
 
     def create_metadata_file(self):
