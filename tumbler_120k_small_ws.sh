@@ -9,6 +9,9 @@
 #Input to Commit number
 export COMMIT=$1
 
+echo 'COMMIT'
+echo $COMMIT
+
 source /etc/profile.d/lmod.sh
 ml singularity/2.5.2 gcc/6.1.0
 
@@ -38,6 +41,7 @@ echo $SLURM_NODELIST
 
 mkdir -p /projects/holtat/CICD/results/tumbler_120k_small/metadata
 cp ${COMMIT}_info.txt /projects/holtat/CICD/results/tumbler_120k_small/metadata/${DATE}_${HASH}.txt
+ls /projects/holtat/CICD/results/tumbler_120k_small/metadata
 
 for dir in {np_00001,np_00008,np_00027,np_00064}; do
 
