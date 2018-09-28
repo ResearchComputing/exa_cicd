@@ -9,6 +9,9 @@
 #Input to Commit number
 export COMMIT=$1
 
+echo 'COMMIT'
+echo $COMMIT
+
 source /etc/profile.d/lmod.sh
 ml singularity/2.5.2 gcc/6.1.0
 
@@ -19,25 +22,25 @@ export MPIRUN=/projects/holtat/spack/opt/spack/linux-rhel7-x86_64/gcc-6.1.0/open
 
 ## Formatting for output files
 ## Latest commit date, format: 2018-02-19 12:44:03 -0800
-singularity exec $IMAGE bash -c "cd /app/mfix; git log -n 1 --pretty=format:'%ai'" > info.txt
-printf "\n" >> info.txt
+singularity exec $IMAGE bash -c "cd /app/mfix; git log -n 1 --pretty=format:'%ai'" > ${COMMIT}_info.txt
+printf "\n" >> ${COMMIT}_info.txt
 ## Shortened latest commit hash, format: b119a72
-singularity exec $IMAGE bash -c "cd /app/mfix; git log -n 1 --pretty=format:'%h'" >> info.txt
-printf "\n" >> info.txt
+singularity exec $IMAGE bash -c "cd /app/mfix; git log -n 1 --pretty=format:'%h'" >> ${COMMIT}_info.txt
+printf "\n" >> ${COMMIT}_info.txt
 ## Nodelist
-echo $SLURM_NODELIST >> info.txt
-printf "\n" >> info.txt
+echo $SLURM_NODELIST >> ${COMMIT}_info.txt
+printf "\n" >> ${COMMIT}_info.txt
 ## Modules
-ml 2>&1 | grep 1 >> info.txt
+ml 2>&1 | grep 1 >> ${COMMIT}_info.txt
 
-export DATE=$(sed '1q;d' info.txt | awk '{print $1;}')
-export HASH=$(sed '2q;d' info.txt)
+export DATE=$(sed '1q;d' ${COMMIT}_info.txt | awk '{print $1;}')
+export HASH=$(sed '2q;d' ${COMMIT}_info.txt)
 echo $DATE
 echo $HASH
 echo $SLURM_NODELIST
 
 mkdir -p /projects/holtat/CICD/results/tumbler_120k_large/metadata
-cp info.txt /projects/holtat/CICD/results/tumbler_120k_large/metadata/${DATE}_${HASH}.txt
+cp ${COMMIT}_info.txt /projects/holtat/CICD/results/tumbler_120k_small/metadata/${DATE}_${HASH}.txt
 
 for dir in {np_00001 ,np_00008, np_00027, np_00064, np_00125, np_00216}; do
 
