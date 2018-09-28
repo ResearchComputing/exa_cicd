@@ -41,7 +41,6 @@ echo $SLURM_NODELIST
 
 mkdir -p /projects/holtat/CICD/results/tumbler_120k_small/metadata
 cp ${COMMIT}_info.txt /projects/holtat/CICD/results/tumbler_120k_small/metadata/${DATE}_${HASH}.txt
-ls /projects/holtat/CICD/results/tumbler_120k_small/metadata
 
 for dir in {np_00001,np_00008,np_00027,np_00064}; do
 
