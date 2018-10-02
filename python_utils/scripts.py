@@ -1,6 +1,19 @@
 import os
 import sys
 
+class BatchTemplate:
+    """Create Slurm batch script template
+    Note: Most Slurm directive passed in on the command line"""
+
+
+    self.exa_template = """#!/bin/bash
+#SBATCH --exclusive
+
+module load {modules}
+
+python3 run_script.py 
+"""
+
 class ScriptUtils:
     """Create functions and variables for code reuse in mfix exa slurm scripts"""
 
@@ -36,6 +49,16 @@ class ScriptUtils:
         self.nodes = nodes # Number of nodes reserve
         self.time_limit = time_limit # Max wall time
 
+    def run_script(self):
+        """Check that variables make sense
+        Store metadata
+        Run mfix-exa
+        Move results to permanent location"""
+        self.verify_git_hash()
+        self.create_metadata_file()
+        self.mfix_command()
+        self.store_results()
+
     def get_commit_date(self):
         """Get date of commit hash"""
         command = ['singularity', 'exec', self.image_path, 'bash', '-c', "cd /app/mfix; git log -n 1 --pretty=format:'%ai'"]
@@ -49,7 +72,6 @@ class ScriptUtils:
         nodelist = os.getenv("SLURM_NODELIST")
         return nodelist
 
-
     def verify_git_hash(self):
         """Check that input commit matches the commit has
         fromthe git repo in the container"""
@@ -61,35 +83,45 @@ class ScriptUtils:
         print("Input, Expected = " git_hash, self.commit_hash)
         sys.exit("Input git commit hash doesn't match container git hash")
 
-
     def create_metadata_file(self):
         """Create a metadata file with the commit hash, date, modules loaded,
         Slurm Nodelist, mfix 'inputs' file version, mfix 'mfix.dat' version,
         and mfix 'particle_input.dat' version. Each item should be on one line"""
-
-        # Check that input commit hash matches the git hash in container
-        self.verify_git_hash()
-        date = self.get_commit_date()
+        self.date = self.get_commit_date()
         nodelist = self.get_slurm_nodelist()
         modulenames = " ".join(self.modules)
 
         metadata_filename = self.metadata_dir + "/" + date + "_" + \
                                 self.commit_hash + ".txt"
         with open(metadata_filename, "w") as metafile:
-            metafile.write(date)
+            metafile.write(self.date)
             metafile.write(self.commit_hash)
             metafile.write(nodelist)
             metafile.write(modulenames)
 
 
-
-
-    def run_mfix(self):
+    def mfix_command(self):
         """Run mfix exa, example command line command:
         $MPIRUN -np $np singularity exec $IMAGE bash -c "cd $WD/$dir; $MFIX inputs >> ${DATE}_${HASH}_${dir}" """
+        np_dir = self.get_np_dir()
+        singularity_subcommand = """cd {wd}/{np_dir};
+        {mfix} inputs >> {date}_{git_hash}_{np_dir}""".format(
+                    wd=self.base_working_dir,
+                    np_dir=np_dir,
+                    mfix=self.mfix,
+                    date=self.date,
+                    git_hash=self.commit_hash
+                    )
+        command = [self.mpirun, self.mpi_processes, 'singularity', 'exec', \
+            self.image_path, 'bash', '-c', singularity_subcommand]
+        subprocess.check_output(command)
 
-        pass
-
+    def get_np_dir(self, np):
+        """Input: integer number of mpi processes
+        Output: string representing output directory
+        examples: 1 -> 'np_00001', 64 -> 'np_00064'"""
+        directory = "np_" + str(np).zfill(5)
+        return directory
 
     def store_results(self):
         """Copy outputs from mfix exa run off of temporary scratch directory to
