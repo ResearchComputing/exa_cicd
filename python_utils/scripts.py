@@ -1,3 +1,5 @@
+import os
+import sys
 
 class ScriptUtils:
     """Create functions and variables for code reuse in mfix exa slurm scripts"""
@@ -5,6 +7,7 @@ class ScriptUtils:
     def __init__(self, commit_hash,
             mfix="/app/mfix/build/mfix/mfix",
             base_working_dir="/scratch/summit/holtat",
+            results_dir,
             image_prefix="/scratch/summit/holtat/singularity/holtat-mfix_full:develop_",
             image_suffix=".simg"
             mpirun="/projects/holtat/spack/opt/spack/linux-rhel7-x86_64/gcc-6.1.0/openmpi-2.1.2-foemyxg2vl7b3l57e7vhgqtlwggubj3a/bin/mpirun",
@@ -12,11 +15,13 @@ class ScriptUtils:
             modules=["singularity/2.5.2", "gcc/6.1.0"],
             account="ucb1_summit2",
             exclusive=True,
-            nodes=None,
-            time_limit=None):
+            nodes,
+            time_limit):
         self.commit_hash = commit_hash # 7 character string, ex: 6b3f4ac
         self.mfix = mfix # mfix executable path
         self.base_working_dir = base_working_dir
+        self.results_dir = results_dir # Where to copy results and metadata to
+        self.metadata_dir = self.results_dir + "/metadata"
         ## Singularity image path = prefix+hash+suffix
         # ex: "/scratch/summit/holtat/singularity/holtat-mfix_full:develop_6b3f4ac.simg"
         self.image_prefix = image_prefix
@@ -38,6 +43,13 @@ class ScriptUtils:
         print(date)
         return date
 
+    def get_slurm_nodelist(self):
+        """Return a nodelist string consisting of node names from job
+        example: 'shas[0102,0612,0852]'"""
+        nodelist = os.getenv("SLURM_NODELIST")
+        return nodelist
+
+
     def verify_git_hash(self):
         """Check that input commit matches the commit has
         fromthe git repo in the container"""
@@ -46,7 +58,8 @@ class ScriptUtils:
         print(git_hash, self.commit_hash)
         if git_hash == self.commit_hash:
             return True
-        return False
+        print("Input, Expected = " git_hash, self.commit_hash)
+        sys.exit("Input git commit hash doesn't match container git hash")
 
 
     def create_metadata_file(self):
@@ -54,7 +67,21 @@ class ScriptUtils:
         Slurm Nodelist, mfix 'inputs' file version, mfix 'mfix.dat' version,
         and mfix 'particle_input.dat' version. Each item should be on one line"""
 
-        pass
+        # Check that input commit hash matches the git hash in container
+        self.verify_git_hash()
+        date = self.get_commit_date()
+        nodelist = self.get_slurm_nodelist()
+        modulenames = " ".join(self.modules)
+
+        metadata_filename = self.metadata_dir + "/" + date + "_" + \
+                                self.commit_hash + ".txt"
+        with open(metadata_filename, "w") as metafile:
+            metafile.write(date)
+            metafile.write(self.commit_hash)
+            metafile.write(nodelist)
+            metafile.write(modulenames)
+
+
 
 
     def run_mfix(self):
