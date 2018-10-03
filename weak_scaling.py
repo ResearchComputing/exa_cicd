@@ -61,7 +61,7 @@ class process(object):
                         self.num_rows += 1
 
                         #sys.exit(0)
-                        
+
                         self.content[filename] = f.readlines()
 
                         # Find start and end of exclusive function data in mfix output
@@ -70,6 +70,7 @@ class process(object):
 
                         for jj, line in enumerate(self.content[filename]):
                             self.content[filename][jj] = line.replace(", ", "_")
+                            self.content[filename][jj] = self.content[filename][jj].replace("()", "")
 
                             if 'name' in line.lower() and '-----' in self.content[filename][jj + 1]:
                                 self.startlines[filename] = jj + 2
@@ -133,9 +134,14 @@ class process(object):
                         if func in line:
                             # kk = func index in list, line.split()[3] = average func time
                             self.results[date][short_hash][np][kk] = float(line.split()[3])
+                            # print('Date, Hash, NP, KK = ', date, short_hash, np, kk)
+                            # print(self.results[date][short_hash][np][kk])
                 if 'time spent in main ' in line.lower():
                     index = self.columns.index("Total")
                     self.results[date][short_hash][np][index] = float(line.split()[-1])
+                    #print('Date, Hash, NP, Index = ', date, short_hash, np, index)
+                    #print(self.results[date][short_hash][np][index])
+
 
     # Dictionary to dataframe
     def dict_to_df(self):
@@ -156,19 +162,41 @@ class process(object):
     def get_datehashes(self):
         return sorted(list(set(self.df['DateHash'].tolist())))
 
+    def get_most_expensive_functions(self):
+        pass
 
     def weak_scaling_one_commit(self, commit):
         sub_df = self.df[self.df.Hash == commit]
-
+        #print(commit, commit)
         date = sub_df.Date.tolist()[0]
+        # print(sub_df)
 
-        ax = sub_df.plot(kind='line', x='NP', y='Total',
-                         marker='o', color='b')
+        # print(list(sub_df.columns.values))
+# calc_particle_collisions()                       25164      11.07      11.07      11.07  39.58%
+# NeighborParticleContainer::buildNeighborList        39      5.996      5.996      5.996  21.45%
+# NeighborParticleContainer::updateNeighbors         932      2.604      2.604      2.604   9.31%
+# ParticleContainer::WriteAsciiFile()                  2      2.395      2.395      2.395   8.57%
+# mfix_dem::EvolveParticles()                          3       1.83       1.83       1.83   6.55%
+# des_time_loop()                                  25164      1.549      1.549      1.549   5.54%
+# NeighborParticleContainer::cacheNeighborInfo        39     0.8091     0.8091     0.8091   2.89%
+
+        # for col in list(sub_df.columns.values):
+
+        fig, ax = plt.subplots()
+        for ii, col in enumerate(['Total', 'calc_particle_collisions', 'NeighborParticleContainer::buildNeighborList',
+            'ParticleContainer::WriteAsciiFile', 'NeighborParticleContainer::updateNeighbors']):
+            # print(sub_df[col], sub_df['NP'])
+
+            ax = sub_df.plot(ax=ax, kind='line', x='NP', y=col, marker='.')
         ax.set(xlabel="NP", ylabel="Time(s)")
-        ax.set(xlim=[0,25])
+        ax.set(xlim=[0,65])
         ax.set(title="MFiX-Exa Weak Scaling {date} {commit}".format(date=date, commit=commit))
         fig = ax.get_figure()
         fig.savefig("{date}_{commit}.png".format(date=date, commit=commit))
+
+        # sub_df['x_vals'] = [datehash.index(x) for x in sub_df['DateHash']]
+        # ax = sub_df.plot(ax=ax, kind='line', x='x_vals', y=func_name,
+        #                 label=num_proc, marker=".")
 
 
     def weak_scaling_over_time(self, num_proc_list=[1], case=None,
@@ -198,7 +226,7 @@ class process(object):
         sub_df = sub_df[sub_df['Date'] >= start_date]
         sub_df = sub_df[sub_df['Date'] <= end_date]
         datehash = sorted(list(set(sub_df['DateHash'].tolist())))
-        
+
 #        # Find most points for a given NP
 #        total_rows = 0
 #        for num_proc in num_proc_list:
@@ -224,7 +252,7 @@ class process(object):
             sub_df = sub_df[sub_df['Date'] >= start_date]
             sub_df = sub_df[sub_df['Date'] <= end_date]
             sub_df = sub_df.sort_values(by=['DateHash'])
-            
+
 #            #Plots are only legible with ~20 points. Use the latest N points and a sampling
 #            #of the rest of the points
 #            total_rows = sub_df.shape[0]
@@ -232,13 +260,13 @@ class process(object):
 #                print(total_rows)
 #                N = 10
 #                sub_df_end = sub_df.tail(N)
-#                
+#
 #                # Sample earlier points evenly
 #                slices = math.ceil((float(total_rows-N)/float(N)))
 #                sub_df_start = sub_df.head(total_rows - N)
 #                sub_df_start = sub_df_start.iloc[::slices, :]
 #                sub_df = pd.concat([sub_df_start, sub_df_end])
-                
+
 
 #                # Fix x-ticks to only use plotted points
 #                if total_rows > len(datehash):
@@ -288,7 +316,7 @@ class process(object):
 #        sub_df = sub_df[sub_df['Date'] <= end_date]
 #        datehash = sorted(list(set(sub_df['DateHash'].tolist())))
 #
-#        
+#
 #        traces = []
 #
 #        # Get data for a specific NP between start and end dates, sort by commit date

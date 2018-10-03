@@ -19,10 +19,18 @@ A.prefill_dict()
 A.add_data_to_dict()
 A.dict_to_df()
 #A.weak_scaling_one_commit(commit='777730c')
-A.weak_scaling_over_time(case='HCS', num_proc_list=[1, 4, 8, 16, 24],
-        start_date=args.start_date, end_date=args.end_date)
+#A.weak_scaling_over_time(case='HCS', num_proc_list=[1, 4, 8, 16, 24],
+#         start_date=args.start_date, end_date=args.end_date)
+#A.weak_scaling_over_time(case='HCS', num_proc_list=[1, 8, 27, 64, 125, 216],
+#        start_date=args.start_date, end_date=args.end_date)
 #A.weak_scaling_over_time(case='HCS', num_proc_list=[1, 4, 8, 16, 24], func_name='solve_bicgstab')
 #A.weak_scaling_over_time(case='HCS', num_proc_list=[1, 4, 8, 16, 24], func_name='calc_particle_collisions()')
 
+
+# A.weak_scaling_over_time(case='Tumbler', num_proc_list=[1, 8, 27, 64],
+#                 start_date=args.start_date, end_date=args.end_date)
+A.weak_scaling_one_commit(commit='5073e64')
 ## Switching to plotly
-A.weak_scaling_over_time_2(case='HCS', num_proc_list=[1, 4, 8, 16, 24])
+#A.weak_scaling_over_time_2(case='HCS', num_proc_list=[1, 4, 8, 16, 24])
+
+##python driver.py --work-dir=/projects/holtat/CICD/results/weak_scaling_small/ --data-dirs np_00001 np_00004 np_00008 np_00016 np_00024 --num-funcs 2
