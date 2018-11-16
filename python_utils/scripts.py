@@ -1,19 +1,6 @@
 import os
 import sys
 
-class BatchTemplate:
-    """Create Slurm batch script template
-    Note: Most Slurm directive passed in on the command line"""
-
-
-    self.exa_template = """#!/bin/bash
-#SBATCH --exclusive
-
-module load {modules}
-
-python3 run_script.py
-"""
-
 class ScriptUtils:
     """Create functions and variables for code reuse in mfix exa slurm scripts"""
 
@@ -28,6 +15,7 @@ class ScriptUtils:
             exclusive=True,
             image_prefix="/scratch/summit/holtat/singularity/holtat-mfix_full:develop_",
             image_suffix=".simg"
+            job_name=None,
             mfix="/app/mfix/build/mfix/mfix",
             modules=["singularity/2.5.2", "gcc/6.1.0"],
             mpirun="/projects/holtat/spack/opt/spack/linux-rhel7-x86_64/gcc-6.1.0/openmpi-2.1.2-foemyxg2vl7b3l57e7vhgqtlwggubj3a/bin/mpirun",
@@ -42,6 +30,7 @@ class ScriptUtils:
         self.image_prefix = image_prefix
         self.image_suffix = image_suffix
         self.image_path = self.image_prefix + self.commit_hash + self.image_suffix
+        self.job_name = job_name
         self.mpirun = mpirun # mpirun executable
         self.modules = modules # Lmod modules to load
         self.np_list = np_list # np list to be handed to mpirun, ex: [1, 8, 27, 64]
@@ -50,6 +39,27 @@ class ScriptUtils:
         self.exclusive = exclusive # Reserve full node?
         self.nodes = nodes # Number of nodes reserve
         self.time_limit = time_limit # Max wall time
+
+    def write_batch_script(self):
+        with open("submit.sh", 'wr') as batch_script:
+            # SBATCH Directives
+            batch_script.writeline("#!/bin/bash")
+            batch_script.writeline("#SBATCH --account {account}".format(account=self.account))
+            if self.exclusive:
+                batch_script.writeline("#SBATCH --exclusive")
+            batch_script.writeline("#SBATCH {nodes}".format(nodes=self.nodes))
+            batch_script.writeline("#SBATCH {time_limit}".format(time_limit=self.time_limit))
+            batch_script.writeline("#SBATCH {job_name}".format(job_name=self.job_name))
+
+            # Run MFiX
+            run_command = "python3 run_mfix.py --option run "
+            run_command += "--commit-hash {commit_hash} ".format(commit_hash=self.commit_hash)
+            run_command += "--results-dir {results_dir} ".format(results_dir=self.results_dir)
+            run_command += "--working-dir {working_dir} ".format(working_dir=self.base_working_dir)
+            run_command += "--mfix-exe {mfix} ".format(mfix=self.mfix)
+            run_command += "--mpirun {mpirun}".format(mpirun=self.mpirun)
+            batch_script.writeline(run_command)
+
 
     def run_script(self):
         """Check that variables make sense
