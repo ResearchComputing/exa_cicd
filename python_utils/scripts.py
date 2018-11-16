@@ -41,6 +41,10 @@ class ScriptUtils:
         self.time_limit = time_limit # Max wall time
 
     def write_batch_script(self):
+        try:
+            os.remove("submit.sh")
+        except OSError:
+            pass
         with open("submit.sh", 'wr') as batch_script:
             # SBATCH Directives
             batch_script.writeline("#!/bin/bash")
@@ -59,6 +63,7 @@ class ScriptUtils:
             run_command += "--mfix-exe {mfix} ".format(mfix=self.mfix)
             run_command += "--mpirun {mpirun}".format(mpirun=self.mpirun)
             batch_script.writeline(run_command)
+            batch_script.close()
 
 
     def run_script(self):

@@ -1,5 +1,5 @@
 import argparse
-from scripts import ScriptUtils, BatchTemplate
+from scripts import ScriptUtils
 
 parser = argparse.ArgumentParser(description='Inputs for ScriptUtils')
 ## Required args
