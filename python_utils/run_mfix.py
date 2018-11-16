@@ -3,6 +3,11 @@ from scripts import ScriptUtils, BatchTemplate
 
 parser = argparse.ArgumentParser(description='Inputs for ScriptUtils')
 ## Required args
+parser.add_argument('--option',
+    dest='option',
+    type=str,
+    help='Option to either write out batch script or run mfix. Either "write" or "run"',
+    required=True)
 parser.add_argument('--commit-hash',
     dest='commit_hash',
     type=str,
@@ -39,11 +44,16 @@ parser.add_argument('--account',
     default="ucb1_summit2",
     type=str,
     help='RMACC Summit Slurm account')
-parser.add_argument('--mfix_exe',
+parser.add_argument('--mfix-exe',
     dest='mfix_exe',
     default="/app/mfix/build/mfix/mfix",
     type=str,
     help='Mfix-exa executable location within Singularity container')
+parser.add_argument('--job-name',
+    dest='job_name',
+    default="MFiX CICD",
+    type=str,
+    help='Slurm jobs name')
 parser.add_argument('--modules',
     dest='modules',
     type=list,
@@ -67,8 +77,14 @@ script = ScriptUtils(
     account=args.account,
     exclusive=True,
     image_prefix="/scratch/summit/holtat/singularity/holtat-mfix_full:develop_",
-    image_suffix=".simg"
+    image_suffix=".simg",
+    job_name=args.job_name,
     mfix=args.mfix_exe,
     modules=args.modules,
     mpirun=args.mpirun
 )
+
+if args.option == "write":
+    script.write_batch_script()
+elif args.option == "run":
+    script.run_script()
