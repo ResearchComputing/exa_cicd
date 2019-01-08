@@ -49,6 +49,7 @@ make -j2
 make install
 cd ..
 
+scl enable devtoolset-7 bash
 # openmpi 2.1.2
 wget https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-2.1.2.tar.gz
 tar -xf openmpi-2.1.2.tar.gz
@@ -62,6 +63,7 @@ CC=/opt/rh/devtoolset-7/root/usr/bin/gcc
 make -j2
 make install
 
+scl enable devtoolset-7 bash
 # Location to install exa
 mkdir -p /app
 mv /mfix /app
