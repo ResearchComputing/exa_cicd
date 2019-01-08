@@ -56,7 +56,9 @@ cd openmpi-2.1.2/
 ./configure \
 --with-verbs \
 --with-psm2 \
---enable-mpi-thread-multiple
+--enable-mpi-thread-multiple \
+CXX=/opt/rh/devtoolset-7/root/usr/bin/g++ \
+CC=/opt/rh/devtoolset-7/root/usr/bin/gcc
 make -j2
 make install
 
