@@ -40,16 +40,18 @@ yum install -y devtoolset-7-gcc*
 #yum-config-manager --enable rhel-server-rhscl-7-rpms
 scl enable devtoolset-7 bash
 
+export LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib/gcc/x86_64-redhat-linux/7:$LD_LIBRARY_PATH
+export PATH=/opt/rh/devtoolset-7/root/usr/bin:$PATH
+
 # cmake 3.11.1
 wget https://cmake.org/files/v3.11/cmake-3.11.1.tar.gz
 tar -xf cmake-3.11.1.tar.gz
 cd cmake-3.11.1/
 ./configure
-make -j2
+make -j4
 make install
 cd ..
 
-scl enable devtoolset-7 bash
 # openmpi 2.1.2
 wget https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-2.1.2.tar.gz
 tar -xf openmpi-2.1.2.tar.gz
@@ -59,18 +61,25 @@ cd openmpi-2.1.2/
 --with-psm2 \
 --enable-mpi-thread-multiple \
 CXX=/opt/rh/devtoolset-7/root/usr/bin/g++ \
-CC=/opt/rh/devtoolset-7/root/usr/bin/gcc
-make -j2
+CC=/opt/rh/devtoolset-7/root/usr/bin/gcc \
+FC=/opt/rh/devtoolset-7/root/usr/bin/gfortran
+make -j4
 make install
 
-scl enable devtoolset-7 bash
+export FC=/usr/local/bin/mpif90
+export CC=/usr/local/bin/mpicc
+#export CXX=/usr/local/bin/mpicxx ## Breaks BLITZ build
+## Again blitz build issue
+unset CXX
+
 # Location to install exa
 mkdir -p /app
 mv /mfix /app
 cd /app/mfix
 mkdir build
 cd build
-cmake -DCMAKE_CXX_COMPILER=mpic++ -DCMAKE_Fortran_COMPILER=mpif90 -DCMAKE_C_COMPILER=mpicc -DCMAKE_BUILD_TYPE=RelWithDebInfo -DAMREX_ENABLE_TINY_PROFILE=1 ..
+#cmake -DCMAKE_CXX_COMPILER=mpic++ -DCMAKE_Fortran_COMPILER=mpif90 -DCMAKE_C_COMPILER=mpicc -DCMAKE_BUILD_TYPE=RelWithDebInfo -DAMREX_ENABLE_TINY_PROFILE=1 ..
+cmake ..
 make -j4
 
 # Edit command prompt so its short and shows you in a container
