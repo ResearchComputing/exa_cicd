@@ -69,8 +69,7 @@ make install
 export FC=/usr/local/bin/mpif90
 export CC=/usr/local/bin/mpicc
 #export CXX=/usr/local/bin/mpicxx ## Breaks BLITZ build
-## Again blitz build issue
-unset CXX
+export CXX=/opt/rh/devtoolset-7/root/usr/bin/g++
 
 # Location to install exa
 mkdir -p /app
