@@ -13,11 +13,14 @@ echo 'COMMIT'
 echo $COMMIT
 
 source /etc/profile.d/lmod.sh
-ml singularity/2.5.2 gcc/6.1.0
+ml singularity/3.0.2 gcc/6.1.0
+
+cd /scratch/summit/holtat/singularity
+singularity pull library://aarontholt/default/mfix-exa:develop_${COMMIT}.sif
 
 export MFIX=/app/mfix/build/mfix/mfix
 export WD=/scratch/summit/holtat/tumbler_120k_small
-export IMAGE=/scratch/summit/holtat/singularity/holtat-mfix_full:develop_${COMMIT}.simg
+export IMAGE=/scratch/summit/holtat/singularity/mfix-exa_develop_${COMMIT}.sif
 export MPIRUN=/projects/holtat/spack/opt/spack/linux-rhel7-x86_64/gcc-6.1.0/openmpi-2.1.2-foemyxg2vl7b3l57e7vhgqtlwggubj3a/bin/mpirun
 
 ## Formatting for output files
