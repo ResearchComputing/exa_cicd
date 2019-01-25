@@ -16,7 +16,7 @@ source /etc/profile.d/lmod.sh
 ml singularity/3.0.2 gcc/6.1.0
 
 cd /scratch/summit/holtat/singularity
-singularity pull library://aarontholt/default/mfix-exa:develop_${COMMIT}.sif
+singularity pull library://aarontholt/default/mfix-exa:develop_${COMMIT}
 
 export MFIX=/app/mfix/build/mfix/mfix
 export WD=/scratch/summit/holtat/sing
