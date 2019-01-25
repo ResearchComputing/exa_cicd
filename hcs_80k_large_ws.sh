@@ -3,17 +3,23 @@
 #SBATCH --exclusive
 #SBATCH --account ucb1_summit2
 #SBATCH --time 04:00:00
-##SBATCH --output normal.out
-##SBATCH --reservation bench-bandwidth
+#SBATCH --output /scratch/summit/holtat/exa_slurm_output/hcs_80k_large_ws_%j
 
-ml singularity/2.5.2 gcc/6.1.0
+#Input to Commit number
+export COMMIT=$1
 
 echo 'COMMIT'
 echo $COMMIT
 
+source /etc/profile.d/lmod.sh
+ml singularity/3.0.2 gcc/6.1.0
+
+cd /scratch/summit/holtat/singularity
+singularity pull library://aarontholt/default/mfix-exa:develop_${COMMIT}
+
 export MFIX=/app/mfix/build/mfix/mfix
 export WD=/scratch/summit/holtat/hcs_80k_large_weak_scaling
-export IMAGE=/scratch/summit/holtat/singularity/holtat-mfix_full:develop_${COMMIT}.simg
+export IMAGE=/scratch/summit/holtat/singularity/mfix-exa_develop_${COMMIT}.sif
 export MPIRUN=/projects/holtat/spack/opt/spack/linux-rhel7-x86_64/gcc-6.1.0/openmpi-2.1.2-foemyxg2vl7b3l57e7vhgqtlwggubj3a/bin/mpirun
 
 ## Formatting for output files
@@ -35,8 +41,8 @@ echo $DATE
 echo $HASH
 echo $SLURM_NODELIST
 
-mkdir -p /projects/holtat/CICD/results/tumbler_120k_small/metadata
-cp ${COMMIT}_info.txt /projects/holtat/CICD/results/tumbler_120k_small/metadata/${DATE}_${HASH}.txt
+mkdir -p /projects/holtat/CICD/results/hcs_80k_large_weak_scaling/metadata
+cp ${COMMIT}_info.txt /projects/holtat/CICD/results/hcs_80k_large_weak_scaling/metadata/${DATE}_${HASH}.txt
 
 for dir in {np_00001,np_00008,np_00027,np_00064,np_00125,np_00216}; do
 

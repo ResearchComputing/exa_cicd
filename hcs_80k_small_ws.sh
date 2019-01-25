@@ -4,7 +4,6 @@
 #SBATCH --account ucb1_summit2
 #SBATCH --time 04:00:00
 #SBATCH --output /scratch/summit/holtat/exa_slurm_output/hcs_80k_small_ws_%j
-##SBATCH --reservation bench-bandwidth
 
 #Input to Commit number
 export COMMIT=$1
