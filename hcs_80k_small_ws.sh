@@ -42,8 +42,8 @@ echo $DATE
 echo $HASH
 echo $SLURM_NODELIST
 
-mkdir -p /projects/holtat/CICD/results/tumbler_120k_small/metadata
-cp ${COMMIT}_info.txt /projects/holtat/CICD/results/tumbler_120k_small/metadata/${DATE}_${HASH}.txt
+mkdir -p /projects/holtat/CICD/results/hcs_80k_small_weak_scaling/metadata
+cp ${COMMIT}_info.txt /projects/holtat/CICD/results/hcs_80k_small_weak_scaling/metadata/${DATE}_${HASH}.txt
 
 for dir in {np_00001,np_00004,np_00008,np_00016,np_00024}; do
 
@@ -62,8 +62,8 @@ done
 ## Copy results to projects
 cd $WD
 for dir in {np_00001,np_00004,np_00008,np_00016,np_00024}; do
-    mkdir -p /projects/holtat/CICD/results/weak_scaling_small/${dir}
-    cp ${dir}/${DATE}_${HASH}* /projects/holtat/CICD/results/weak_scaling_small/${dir}/
+    mkdir -p /projects/holtat/CICD/results/hcs_80k_small_weak_scaling/${dir}
+    cp ${dir}/${DATE}_${HASH}* /projects/holtat/CICD/results/hcs_80k_small_weak_scaling/${dir}/
 done
 
 #for ii in np_*; do cp -v $ii/2018* /projects/holtat/CICD/results/weak_scaling_small/${ii}/; done
