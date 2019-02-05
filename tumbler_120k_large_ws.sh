@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --nodes 3
+#SBATCH --nodes 9
 #SBATCH --exclusive
 #SBATCH --account ucb1_summit2
 #SBATCH --time 04:00:00
