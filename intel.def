@@ -83,7 +83,6 @@ LDFLAGS="$RPATHS $INTEL_LIBS"
 make -j4
 make install
 
-
 # Edit command prompt so its short and shows you in a container
 export PS1="Singularity > "
 

@@ -1,0 +1,54 @@
+BootStrap:localimage
+From:/home/aaron/exa_cicd/intel.sif
+
+%files
+mfix /
+
+%post
+
+scl enable devtoolset-7 bash
+
+export LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib/gcc/x86_64-redhat-linux/7:$LD_LIBRARY_PATH
+export PATH=/opt/rh/devtoolset-7/root/usr/bin:$PATH
+
+export LD_LIBRARY_PATH=/opt/intel/compilers_and_libraries_2019.2.187/linux/compiler/lib/intel64
+export PATH=/opt/intel/compilers_and_libraries_2019.2.187/linux/bin/intel64:$PATH
+
+export RPATHS="-Wl,-rpath,'/opt/intel/compilers_and_libraries_2019.2.187/linux/compiler/lib/intel64'"
+export INTEL_LIBS="-L/opt/intel/compilers_and_libraries_2019.2.187/linux/compiler/lib/intel64"
+
+export FC=/usr/local/bin/mpif90
+export CC=/usr/local/bin/mpicc
+#export CXX=/usr/local/bin/mpicxx ## Breaks BLITZ build
+export CXX=/opt/intel/compilers_and_libraries_2019.2.187/linux/bin/intel64/icpc
+
+
+# MFIX EXA INSTALL
+# Location to install exa
+mkdir -p /app
+mv /mfix /app
+cd /app/mfix
+mkdir build
+cd build
+
+#cmake ..
+
+#cmake CMAKE_BUILD_TYPE=RelWithDebInfo CMAKE_CXX_FLAGS="-O3 -DNDEBUG $RPATHS $INTEL_LIBS" CMAKE_C_FLAGS="$RPATHS $INTEL_LIBS" CMAKE_Fortran_FLAGS="-O3 -DNDEBUG $RPATHS $INTEL_LIBS" ..
+
+cmake -DCMAKE_CXX_FLAGS="$RPATHS $INTEL_LIBS" -DCMAKE_C_FLAGS="$RPATHS $INTEL_LIBS" -DCMAKE_Fortran_FLAGS="$RPATHS $INTEL_LIBS" ..
+
+#cmake -DCMAKE_BUILD_TYPE=None -DCMAKE_CXX_FLAGS="-O2 -g" DCMAKE_Fortran_FLAGS="-O2 -g" ..
+
+make -j4
+
+
+# Edit command prompt so its short and shows you in a container
+export PS1="Singularity > "
+
+
+######################################################
+%environment
+
+
+######################################################
+%runscript
