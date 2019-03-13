@@ -53,7 +53,7 @@ for dir in {np_00001,np_00008,np_00027,np_00064,np_00125,np_00216}; do
     # Get np from dir
     np=${dir:(-5)}
     np=$((10#$np))
-    $MPIRUN -np $np singularity exec $IMAGE bash -c "cd $WD/$dir; $MFIX inputs >> ${DATE}_${HASH}_${dir}"
+    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs >> ${DATE}_${HASH}_${dir}"
 
 done
 
