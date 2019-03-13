@@ -15,7 +15,8 @@ source /etc/profile.d/lmod.sh
 ml singularity/3.0.2 gcc/6.1.0
 
 cd /scratch/summit/holtat/singularity
-singularity pull library://aarontholt/default/mfix-exa:develop_${COMMIT}.sif
+singularity pull library://aarontholt/default/mfix-exa:develop_${COMMIT}
+chmod g+w mfix-exa_develop_${COMMIT}.sif
 
 export MFIX=/app/mfix/build/mfix/mfix
 export WD=/scratch/summit/holtat/tumbler_120k_small
@@ -53,7 +54,7 @@ for dir in {np_00001,np_00008,np_00027,np_00064}; do
     # Get np from dir
     np=${dir:(-5)}
     np=$((10#$np))
-    $MPIRUN -np $np singularity exec $IMAGE bash -c "cd $WD/$dir; $MFIX inputs >> ${DATE}_${HASH}_${dir}"
+    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs >> ${DATE}_${HASH}_${dir}"
 
 done
 
