@@ -7,9 +7,9 @@ import numpy as np
 ### USER INPUT SECTION ###
 # Scale the problem by an integer value in each
 # direction defined below
-scale_x = [2, 4, 4, 6]
-scale_y = [1, 1, 1, 1]
-scale_z = [2, 2, 4, 4]
+scale_x = [2, 3, 4, 5, 6]
+scale_y = [2, 3, 4, 5, 6]
+scale_z = [2, 3, 4, 5, 6]
 #scale = [scale_x, scale_y, scale_z]
 
 # Original file locations
@@ -19,7 +19,7 @@ orig_mfixdat = orig + '/mfix.dat'
 orig_inputs = orig + '/inputs'
 
 # New File Locations
-new = ['np_00004', 'np_00008', 'np_00016', 'np_00024'] # A directory with this name is created if it doesn't exist
+new = ['np_00008', 'np_00027', 'np_00064', 'np_00125', 'np_00216'] # A directory with this name is created if it doesn't exist
 #new_particle = new + '/particle_input.dat'
 #new_mfixdat = new + '/mfix.dat'
 #new_inputs = new + '/inputs'
@@ -105,6 +105,8 @@ def update_geometry(orig_mfixdat, new_mfixdat,
                 line = parse_line(line)
                 line[2] = str(float(line[2])*scale[2])
                 nf.write(' '.join(line) + '\n')
+            elif 'BC_' in line:
+                nf.write(line.replace("0.006", str(float(0.006*scale[2]))))
             else:
                 nf.write(line)
         of.close()
