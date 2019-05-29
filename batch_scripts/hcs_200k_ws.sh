@@ -48,7 +48,7 @@ echo $SLURM_NODELIST
 #mkdir -p /projects/holtat/CICD/results/hcs_80k_large_weak_scaling/metadata
 #cp ${BRANCH}_${COMMIT}_info.txt /projects/holtat/CICD/results/hcs_80k_large_weak_scaling/metadata/${DATE}_${HASH}.txt
 
-for dir in {np_00001,np_00008,np_00027}; do
+for dir in {np_0001,np_0008,np_0027}; do
 
     # Make directory if needed
     mkdir -p $WD/$dir
