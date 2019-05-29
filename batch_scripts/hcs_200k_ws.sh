@@ -27,6 +27,7 @@ export MPIRUN=/projects/holtat/spack/opt/spack/linux-rhel7-x86_64/gcc-6.1.0/open
 
 ## Formatting for output files
 ## Latest commit date, format: 2018-02-19 12:44:03 -0800
+cd $WD
 singularity exec $IMAGE bash -c "cd /app/mfix; git log -n 1 --pretty=format:'%ai'" > ${BRANCH}_${COMMIT}_info.txt
 printf "\n" >> ${BRANCH}_${COMMIT}_info.txt
 ## Shortened latest commit hash, format: b119a72
@@ -44,8 +45,8 @@ echo $DATE
 echo $HASH
 echo $SLURM_NODELIST
 
-mkdir -p /projects/holtat/CICD/results/hcs_80k_large_weak_scaling/metadata
-cp ${BRANCH}_${COMMIT}_info.txt /projects/holtat/CICD/results/hcs_80k_large_weak_scaling/metadata/${DATE}_${HASH}.txt
+#mkdir -p /projects/holtat/CICD/results/hcs_80k_large_weak_scaling/metadata
+#cp ${BRANCH}_${COMMIT}_info.txt /projects/holtat/CICD/results/hcs_80k_large_weak_scaling/metadata/${DATE}_${HASH}.txt
 
 for dir in {np_00001,np_00008,np_00027}; do
 
