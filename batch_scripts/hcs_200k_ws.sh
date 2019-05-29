@@ -55,7 +55,7 @@ for dir in {np_0001,np_0008,np_0027}; do
     cd $WD/$dir
     pwd
     # Get np from dir
-    np=${dir:(-5)}
+    np=${dir:(-4)}
     np=$((10#$np))
 
     # Run default then timestepping
