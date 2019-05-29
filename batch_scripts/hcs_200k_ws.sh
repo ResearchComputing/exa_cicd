@@ -1,9 +1,9 @@
 #!/bin/bash
-#SBATCH --nodes 9
+#SBATCH --nodes 2
 #SBATCH --exclusive
 #SBATCH --account ucb1_summit2
 #SBATCH --time 04:00:00
-#SBATCH --output /scratch/summit/holtat/exa_slurm_output/hcs_80k_large_ws_%j
+#SBATCH --output /scratch/summit/holtat/exa_slurm_output/hcs_200k_ws_%j
 
 #Input to Commit number
 export COMMIT=$1
