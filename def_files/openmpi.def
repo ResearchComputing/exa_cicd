@@ -19,13 +19,12 @@ yum install -y libibverbs libibverbs-devel rdma
 yum install -y numactl-libs numactl-devel
 
 # GCC make bison flex etc
-#yum groupinstall -y 'Development Tools'
-yum install -y wget make
+yum -y group install "Development Tools"
+yum install -y wget
 
 # gcc 7.2
 yum install -y centos-release-scl
 yum install -y devtoolset-7-gcc*
-#yum-config-manager --enable rhel-server-rhscl-7-rpms
 scl enable devtoolset-7 bash
 
 export LD_LIBRARY_PATH=/opt/rh/devtoolset-7/root/usr/lib/gcc/x86_64-redhat-linux/7:$LD_LIBRARY_PATH
