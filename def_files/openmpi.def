@@ -5,10 +5,6 @@ From:centos:centos7
 
 %post
 
-#yum check-update
-#yum -y update
-#yum -y upgrade
-
 # Speed up yum
 yum install -y yum-plugin-fastestmirror
 yum install -y deltarpm
@@ -22,16 +18,9 @@ yum install -y perftest qperf
 yum install -y libibverbs libibverbs-devel rdma
 yum install -y numactl-libs numactl-devel
 
-# Other useful libraries
-yum install -y pciutils
-yum install -y which
-
-# Editors
-yum install -y vim emacs
-
 # GCC make bison flex etc
-yum groupinstall -y 'Development Tools'
-yum install -y wget
+#yum groupinstall -y 'Development Tools'
+yum install -y wget make
 
 # gcc 7.2
 yum install -y centos-release-scl
@@ -50,11 +39,13 @@ cd cmake-3.11.1/
 make -j4
 make install
 cd ..
+rm -rf cmake-3.11.1.tar.gz
+rm -rf cmake-3.11.1
 
-# openmpi 2.1.2
-wget https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-2.1.2.tar.gz
-tar -xf openmpi-2.1.2.tar.gz
-cd openmpi-2.1.2/
+# openmpi 2.1.6
+wget https://www.open-mpi.org/software/ompi/v2.1/downloads/openmpi-2.1.6.tar.gz
+tar -xf openmpi-2.1.6.tar.gz
+cd openmpi-2.1.6/
 ./configure \
 --with-verbs \
 --with-psm2 \
@@ -64,6 +55,13 @@ CC=/opt/rh/devtoolset-7/root/usr/bin/gcc \
 FC=/opt/rh/devtoolset-7/root/usr/bin/gfortran
 make -j4
 make install
+
+cd ..
+rm -rf openmpi-2.1.6.tar.gz
+rm -rf openmpi-2.1.6
+
+# Cleanup
+yum clean all
 
 # Edit command prompt so its short and shows you in a container
 export PS1="Singularity > "

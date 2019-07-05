@@ -1,7 +1,7 @@
 BootStrap:library
-From:aarontholt/default/mfix-exa:openmpi_2.1.2
+From:aarontholt/default/mfix-exa:openmpi_2.1.6
 
-#library://aarontholt/default/mfix-exa:openmpi_2.1.2
+#library://aarontholt/default/mfix-exa:openmpi_2.1.6
 
 
 #library://library/default/alpine
