@@ -23,7 +23,7 @@ singularity pull library://aarontholt/default/mfix-exa:${BRANCH}_${COMMIT}
 export MFIX=/app/mfix/build/mfix/mfix
 export WD=/scratch/summit/holtat/hcs_200k_ws
 export IMAGE=/scratch/summit/holtat/singularity/mfix-exa_${BRANCH}_${COMMIT}.sif
-#export MPIRUN=/projects/holtat/spack/opt/spack/linux-rhel7-x86_64/gcc-6.1.0/openmpi-2.1.2-foemyxg2vl7b3l57e7vhgqtlwggubj3a/bin/mpirun
+export MPIRUN=/pl/active/mfix/holtat/openmpi-2.1.6-install/bin/mpirun
 
 ## Formatting for output files
 ## Latest commit date, format: 2018-02-19 12:44:03 -0800
