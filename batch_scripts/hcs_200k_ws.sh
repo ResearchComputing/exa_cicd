@@ -18,7 +18,7 @@ ml use /pl/active/mfix/holtat/modules
 ml singularity/3.0.2 gcc/8.2.0 openmpi_2.1.6
 
 cd /scratch/summit/holtat/singularity
-singularity pull library://aarontholt/default/mfix-exa:${BRANCH}_${COMMIT}
+singularity pull --force library://aarontholt/default/mfix-exa:${BRANCH}_${COMMIT}
 
 export MFIX=/app/mfix/build/mfix/mfix
 export WD=/scratch/summit/holtat/hcs_200k_ws
