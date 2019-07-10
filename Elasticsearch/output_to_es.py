@@ -7,9 +7,6 @@ import datetime
 from elasticsearch_utils import get_elasticsearch_client
 
 
-get_elasticsearch_client()
-
-
 class MfixElasticsearchMessageBuilder:
 
     def __init__(self):
@@ -17,12 +14,28 @@ class MfixElasticsearchMessageBuilder:
             "MLNodeLaplacian::Fsmooth()",
             "FillBoundary_nowait()",
             "NeighborParticleContainer::buildNeighborList",
-            "mfix_dem::EvolveParticles_tstepadapt()"]
+            "mfix_dem::finderror()",
+            "NeighborParticleContainer::getRcvCountsMPI",
+            "FillBoundary_finish()",
+            "des_time_loop()",
+            "mfix_dem::EvolveParticles()",
+            "NeighborParticleContainer::fillNeighborsMPI",
+            "ParticleContainer::RedistributeMPI()",
+            "mfix_dem::EvolveParticles_tstepadapt()",]
 
         self.message = {}
 
+        self.elasticsearch_client = get_elasticsearch_client()
+
+    def index_mfix_message(self):
+        if not self.message:
+            print("No mfix message built")
+        else:
+            res = self.elasticsearch_client.index(index="mfix-hcs-200k", doc_type='_doc', body=self.message)
+            print(res['result'])
+
     def build_mfix_elasticsearch_message(self):
-        mfix_output_filepath = '/home/aaron/hcs_200k_ws/np_0001/2019-07-05_2437f2c_np_0001'
+        mfix_output_filepath = '/home/aaron/hcs_200k_ws/np_0027/2019-07-05_2437f2c_np_0027_adapt'
         self.get_function_times_from_file(mfix_output_filepath)
         self.get_np(mfix_output_filepath)
 
@@ -30,14 +43,20 @@ class MfixElasticsearchMessageBuilder:
         self.get_git_info(job_info_file)
         self.get_slurm_job_info(job_info_file)
 
-        for key, val in self.message.items():
-            print(key, val)
+        singularity_def_file = "/home/aaron/exa_cicd/def_files/mfix.def"
+        self.get_singularity_def_file(singularity_def_file)
+
+        inputs_file = "/home/aaron/hcs_200k_ws/np_0001/inputs"
+        self.get_inputs_file(inputs_file)
+
+        mfix_dat_file = "/home/aaron/hcs_200k_ws/np_0001/mfix.dat"
+        self.get_mfix_dat_file(mfix_dat_file)
 
     def get_inputs_file(self, filepath):
         with open(filepath, 'r') as file:
             self.message['inputs'] = file.read()
 
-    def get_mfix_dat(self, filepath):
+    def get_mfix_dat_file(self, filepath):
         with open(filepath, 'r') as file:
             self.message['mfix_dat'] = file.read()
 
@@ -112,8 +131,6 @@ class MfixElasticsearchMessageBuilder:
         self.message['date'] = runtime.strftime("%Y-%m-%dT%H:%M:%SZ")
 
 
-
-
-
 builder = MfixElasticsearchMessageBuilder()
 builder.build_mfix_elasticsearch_message()
+builder.index_mfix_message()
