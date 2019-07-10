@@ -36,6 +36,9 @@ printf "\n" >> ${BRANCH}_${COMMIT}_info.txt
 ## Nodelist
 echo $SLURM_NODELIST >> ${BRANCH}_${COMMIT}_info.txt
 printf "\n" >> ${BRANCH}_${COMMIT}_info.txt
+## JobID
+echo $SLURM_JOBID >>${BRANCH}_${COMMIT}_info.txt
+printf "\n"
 ## Modules
 ml 2>&1 | grep 1 >> ${BRANCH}_${COMMIT}_info.txt
 
