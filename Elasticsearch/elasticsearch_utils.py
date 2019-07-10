@@ -6,20 +6,20 @@ from config import conf
 
 import elasticsearch
 
-def get_elasticsearch_client(conf):
+def get_elasticsearch_client():
     """Returns an Elasticsearch client configured from a pipeline.config.Config."""
 
     conf_kwargs = dict(
-        hosts=[{'host': conf.elasticsearch.host, 'port': conf.elasticsearch.port}],
-        use_ssl=conf.elasticsearch.use_ssl,
-        verify_certs=conf.elasticsearch.verify_certificates,
+        hosts=[{'host': conf['elasticsearch']['host'], 'port': conf['elasticsearch']['port']}],
+        use_ssl=conf['elasticsearch']['use_ssl'],
+        verify_certs=conf['elasticsearch']['verify_certificates'],
         connection_class=elasticsearch.RequestsHttpConnection
     )
 
-    if conf.elasticsearch.credentials.username:
+    if conf['elasticsearch']['credentials']['username']:
         credentials = (
-            conf.elasticsearch.credentials.username,
-            conf.elasticsearch.credentials.password,
+            conf['elasticsearch']['credentials']['username'],
+            conf['elasticsearch']['credentials']['password'],
         )
         conf_kwargs.update(dict(http_auth=credentials))
 
