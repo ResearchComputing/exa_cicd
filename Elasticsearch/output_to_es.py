@@ -17,7 +17,7 @@ def get_output_filenames(basedir, runtype, np, rundate, githash, gitbranch,
     '''Inputs:
     basedir: String base output directory filepath (ex: /scratch/summit/$USER)
     runtype: String directory name of the run (eg: hcs_200k_ws)
-    np: 4 digit int representing number of processes used
+    np: 4 digit string representing number of processes used
     githash: shortened mfix-exa githash, string of length 7
     rundate: string of the rundate yyyy-mm-dd
     type: string of the special parameters used (ex: adapt)
@@ -40,6 +40,29 @@ def get_output_filenames(basedir, runtype, np, rundate, githash, gitbranch,
                                  '_' + githash + '.sif'
 
     return output_filepath, metadata_file, singularity_image_file
+
+def get_input_filepaths(basedir, runtype, np_list, type):
+    '''Inputs:
+    basedir: String base output directory filepath (ex: /scratch/summit/$USER)
+    runtype: String directory name of the run (eg: hcs_200k_ws)
+    np_list: list of 4 digit strings representing number of processes used
+    type: string of the special parameters used (ex: adapt)
+    Outputs:
+    mfixdat_filepath: string
+    inputs_filepath: string
+    '''
+    if not basedir[-1] == '/':
+        basedir = basedir + '/'
+
+    output_dir = basedir + runtype + '/' + np + '/'
+    mfixdat_filepath = output_dir + 'mfix.dat'
+    inputs_filepath = output_dir + 'inputs'
+
+    if type:
+        inputs_filepath += '_' + type
+
+    return mfixdat_filepath, inputs_filepath
+
 
 
 class MfixElasticsearchMessageBuilder:
