@@ -3,8 +3,43 @@ Takes MFiX-Exa output from the tiny profiler and stores it in elasticsearch.
 """
 
 import datetime
+import subprocess
 
 from elasticsearch_utils import get_elasticsearch_client
+
+# Variables I have in slurm script:
+#{DATE} ${HASH} ${dir} {BRANCH} {COMMIT} {IMAGE}
+#IMAGE=/scratch/summit/holtat/singularity/mfix-exa_${BRANCH}_${COMMIT}.sif
+# Can get def file from "singularity inspect --deffile image_path"
+
+def get_output_filenames(basedir, runtype, np, rundate, githash, gitbranch,
+                            type, singularity_dir):
+    '''Inputs:
+    basedir: String base output directory filepath (ex: /scratch/summit/$USER)
+    runtype: String directory name of the run (eg: hcs_200k_ws)
+    np: 4 digit int representing number of processes used
+    githash: shortened mfix-exa githash, string of length 7
+    rundate: string of the rundate yyyy-mm-dd
+    type: string of the special parameters used (ex: adapt)
+    singularity_dir: string directory name where singularity images are found
+
+    Returns the mfix output filepath, the metadata filepath, and the
+    Singularity image filepath '''
+
+    if not basedir[-1] == '/':
+        basedir = basedir + '/'
+    rundir = basedir + runtype + '/'
+    output_filepath = rundir + np + '/' + rundate + '_' + \
+                          githash + '_np_' + np
+    if type:
+        output_filepath += '_' + type
+
+    metadata_filepath = rundir + gitbranch + '_' + githash + '_info.txt'
+
+    singularity_image_filepath = singularity_dir + 'mfix-exa_' + gitbranch + \
+                                 '_' + githash + '.sif'
+
+    return output_filepath, metadata_file, singularity_image_file
 
 
 class MfixElasticsearchMessageBuilder:
@@ -60,9 +95,16 @@ class MfixElasticsearchMessageBuilder:
         with open(filepath, 'r') as file:
             self.message['mfix_dat'] = file.read()
 
-    def get_singularity_def_file(self, filepath):
+    def read_singularity_def_file(self, filepath):
+        '''Stores the singularity definition file as a string'''
         with open(filepath, 'r') as file:
             self.message['singularity_def_file'] = file.read()
+
+    def get_singularity_def_file_from_image(self, image_path):
+        '''Gets the Singularity definition file using
+        singularity inspect and stores as a string'''
+        self.message['singularity_def_file'] = subprocess.check_output(['singularity',
+                                                        'inspect', '--deffile', image_path])
 
     def get_np(self, filename):
         #'/home/aaron/hcs_200k_ws/np_0001/2019-07-05_2437f2c_np_0001_adapt'

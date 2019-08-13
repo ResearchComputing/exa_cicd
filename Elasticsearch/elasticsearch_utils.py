@@ -27,8 +27,6 @@ def get_elasticsearch_client():
 
     return elasticsearch_client
 
-
-
 def scroll_query(elasticsearch_client, query_args):
     """
     Convenience function for scrolling through elasticsearch queries.
