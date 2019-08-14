@@ -207,7 +207,7 @@ builder.build_mfix_elasticsearch_message()
 # print(builder.message)
 
 for key, item in builder.message.items():
-    print(key, item, file=sys.stderr)
+    sys.stdout.write(key, item)
 ## Index results into elasticsearch
 # builder.index_mfix_message()
 
