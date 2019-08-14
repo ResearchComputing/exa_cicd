@@ -70,13 +70,17 @@ for dir in {np_0001,np_0008,np_0027}; do
 
 done
 
+# Use elasticsearch environment
+ml python/3.5.1
+source /projects/holtat/CICD/elastic_env/bin/activate
+
 ## Index results in ES
 for dir in {np_0001,np_0008,np_0027}; do
     np=${dir:(-4)}
     np=$((10#$np))
-    python output_to_es.py --work-dir $WD --np $np --commit-date $DATE \
+    python3 output_to_es.py --work-dir $WD --np $np --commit-date $DATE \
       --git-hash $HASH --git-branch $BRANCH --image-path $IMAGE
-    python output_to_es.py --work-dir $WD --np $np --commit-date $DATE \
+    python3 output_to_es.py --work-dir $WD --np $np --commit-date $DATE \
       --git-hash $HASH --git-branch $BRANCH --image-path $IMAGE \
       --type adapt
 

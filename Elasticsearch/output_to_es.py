@@ -5,6 +5,7 @@ Takes MFiX-Exa output from the tiny profiler and stores it in elasticsearch.
 import argparse
 import datetime
 import subprocess
+import sys
 
 from elasticsearch_utils import get_elasticsearch_client
 
@@ -206,7 +207,7 @@ builder.build_mfix_elasticsearch_message()
 # print(builder.message)
 
 for key, item in builder.message.items():
-    print(key, item)
+    print(key, item, file=sys.stderr)
 ## Index results into elasticsearch
 # builder.index_mfix_message()
 
