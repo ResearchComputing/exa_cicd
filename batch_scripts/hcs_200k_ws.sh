@@ -62,20 +62,27 @@ for dir in {np_0001,np_0008,np_0027}; do
     np=$((10#$np))
 
     # Run default then timestepping
-    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs >> ${DATE}_${HASH}_${dir}"
-    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs_adapt >> ${DATE}_${HASH}_${dir}_adapt"
+    #$MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs >> ${DATE}_${HASH}_${dir}"
+    #$MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs_adapt >> ${DATE}_${HASH}_${dir}_adapt"
 
 ##mfix.use_tstepadapt=0
     #Consider mpirun -np $np --map-by node ...
 
 done
 
+echo HERE
+
 # Use elasticsearch environment
 ml python/3.5.1 intel/17.4
 source /projects/holtat/CICD/elastic_env/bin/activate
 
+echo HERE2
+
 ## Index results in ES
 for dir in {np_0001,np_0008,np_0027}; do
+
+    echo $dir
+
     np=${dir:(-4)}
     np=$((10#$np))
     python3 output_to_es.py --work-dir $WD --np $np --commit-date $DATE \
