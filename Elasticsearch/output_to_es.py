@@ -206,8 +206,9 @@ builder = MfixElasticsearchMessageBuilder(output_filepath, metadata_file,
 builder.build_mfix_elasticsearch_message()
 # print(builder.message)
 
-for key, item in builder.message.items():
-    sys.stdout.write(key, item)
+with open('/scratch/summit/holtat/elastic_debug', 'w') as f:
+    for key, item in builder.message.items():
+        f.write(key, item)
 ## Index results into elasticsearch
 # builder.index_mfix_message()
 
