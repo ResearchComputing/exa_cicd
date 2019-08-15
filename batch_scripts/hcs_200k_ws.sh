@@ -62,8 +62,8 @@ for dir in {np_0001,np_0008,np_0027}; do
     np=$((10#$np))
 
     # Run default then timestepping
-    #$MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs >> ${DATE}_${HASH}_${dir}"
-    #$MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs_adapt >> ${DATE}_${HASH}_${dir}_adapt"
+    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs >> ${DATE}_${HASH}_${dir}"
+    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs_adapt >> ${DATE}_${HASH}_${dir}_adapt"
 
 ##mfix.use_tstepadapt=0
     #Consider mpirun -np $np --map-by node ...
