@@ -210,7 +210,9 @@ with open('/scratch/summit/holtat/elastic_debug', 'w') as f:
     for key, item in builder.message.items():
         print(key, item)
         f.write(key)
-        f.write(item)
+        f.write(' ')
+        f.write(str(item))
+        f.write('\n')
 
 ## Index results into elasticsearch
 # builder.index_mfix_message()
