@@ -127,7 +127,7 @@ class MfixElasticsearchMessageBuilder:
         '''Gets the Singularity definition file using
         singularity inspect and stores as a string'''
         self.message['singularity_def_file'] = subprocess.check_output(['singularity',
-                                                        'inspect', '--deffile', image_path])
+                                                    'inspect', '--deffile', image_path]).decode("utf-8")
 
     def get_np(self, filename):
         #'/home/aaron/hcs_200k_ws/np_0001/2019-07-05_2437f2c_np_0001_adapt'
