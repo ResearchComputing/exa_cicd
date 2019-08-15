@@ -204,15 +204,6 @@ mfixdat_filepath, inputs_filepath = get_input_filepaths(args.work_dir, args.np, 
 builder = MfixElasticsearchMessageBuilder(output_filepath, metadata_file,
                             mfixdat_filepath, inputs_filepath, args.image_path)
 builder.build_mfix_elasticsearch_message()
-# print(builder.message)
-
-# with open('/scratch/summit/holtat/elastic_debug', 'w') as f:
-#     for key, item in builder.message.items():
-#         print(key, item)
-#         f.write(key)
-#         f.write(' ')
-#         f.write(str(item))
-#         f.write('\n')
 
 ## Index results into elasticsearch
 builder.index_mfix_message()
@@ -223,3 +214,6 @@ builder.index_mfix_message()
 # --git-hash 2437f2c --git-branch phase2-develop --image-path /home/aaron/hcs_200k_ws/mfix-exa_phase2-develop_2437f2c.sif \
 # --type adapt
 # print(output_filepath, metadata_file, mfixdat_filepath, inputs_filepath, args.image_path)
+
+# for key, item in builder.message.items():
+#     print(key, item)
