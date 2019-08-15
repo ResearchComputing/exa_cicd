@@ -18,7 +18,7 @@ ml use /pl/active/mfix/holtat/modules
 ml singularity/3.3.0 gcc/8.2.0 openmpi_2.1.6
 
 cd /scratch/summit/holtat/singularity
-singularity pull --force library://aarontholt/default/mfix-exa:${BRANCH}_${COMMIT}
+singularity pull --allow-unsigned --force library://aarontholt/default/mfix-exa:${BRANCH}_${COMMIT}
 
 export MFIX=/app/mfix/build/mfix/mfix
 export WD=/scratch/summit/holtat/hcs_200k_ws
@@ -73,10 +73,14 @@ done
 echo HERE
 
 # Use elasticsearch environment
-ml python/3.5.1 intel/17.4
+ml python/3.5.1 intel/17.4 git
 source /projects/holtat/CICD/elastic_env/bin/activate
 
 echo HERE2
+
+# Update repo on projects if needed
+cd /projects/holtat/CICD/exa_cicd/Elasticsearch
+git pull
 
 ## Index results in ES
 for dir in {np_0001,np_0008,np_0027}; do
