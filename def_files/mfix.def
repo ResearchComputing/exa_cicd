@@ -1,13 +1,8 @@
 BootStrap:library
 From:aarontholt/default/mfix-exa:openmpi_2.1.6
 
-#library://aarontholt/default/mfix-exa:openmpi_2.1.6
-
-
-#library://library/default/alpine
-#Bootstrap: library
-#From: library/alpine
-
+#Bootstrap:localimage
+#From:openmpi_2.1.6.sif
 
 %files
 mfix /
@@ -30,7 +25,6 @@ mv /mfix /app
 cd /app/mfix
 mkdir build
 cd build
-#cmake -DCMAKE_CXX_COMPILER=mpic++ -DCMAKE_Fortran_COMPILER=mpif90 -DCMAKE_C_COMPILER=mpicc -DCMAKE_BUILD_TYPE=RelWithDebInfo -DAMREX_ENABLE_TINY_PROFILE=1 ..
 cmake ..
 make -j4
 
