@@ -10,7 +10,7 @@ import sys
 from elasticsearch_utils import get_elasticsearch_client
 
 parser = argparse.ArgumentParser(description='Inputs for process class')
-parser.add_argument('--index', dest='index', type=str, help='Elasticsearch index name')
+parser.add_argument('--es-index', dest='es_index', type=str, help='Elasticsearch index name')
 parser.add_argument('--work-dir', dest='work_dir', type=str, help='Directory where data directories live')
 parser.add_argument('--np', dest='np', type=str, help='length 4 string representing number of processes used')
 parser.add_argument('--commit-date', dest='commit_date', type=str, help='Day of latest commit yyy-mm-dd')
@@ -70,13 +70,13 @@ def get_input_filepaths(work_dir, np, type):
 class MfixElasticsearchMessageBuilder:
 
     def __init__(self,
-                 index,
+                 es_index,
                  mfix_output_filepath,
                  metadata_filepath,
                  mfixdat_filepath,
                  inputs_filepath,
                  singularity_image_filepath):
-        self.index = index
+        self.es_index = es_index
         self.mfix_output_filepath = mfix_output_filepath
         self.metadata_filepath = metadata_filepath
         self.mfixdat_filepath = mfixdat_filepath
@@ -101,7 +101,7 @@ class MfixElasticsearchMessageBuilder:
         if not self.message:
             print("No mfix message built")
         else:
-            res = self.elasticsearch_client.index(index=self.index, doc_type='_doc', body=self.message)
+            res = self.elasticsearch_client.index(index=self.es_index, doc_type='_doc', body=self.message)
             print(res['result'])
 
     def build_mfix_elasticsearch_message(self):
@@ -204,7 +204,7 @@ output_filepath, metadata_file = get_output_filenames(args.work_dir,
 
 mfixdat_filepath, inputs_filepath = get_input_filepaths(args.work_dir, args.np, args.type)
 
-builder = MfixElasticsearchMessageBuilder(args.index, output_filepath, metadata_file,
+builder = MfixElasticsearchMessageBuilder(args.es_index, output_filepath, metadata_file,
                             mfixdat_filepath, inputs_filepath, args.sing_image_path)
 builder.build_mfix_elasticsearch_message()
 
