@@ -10,12 +10,13 @@ import sys
 from elasticsearch_utils import get_elasticsearch_client
 
 parser = argparse.ArgumentParser(description='Inputs for process class')
+parser.add_argument('--index', dest='index', type=str, help='Elasticsearch index name')
 parser.add_argument('--work-dir', dest='work_dir', type=str, help='Directory where data directories live')
 parser.add_argument('--np', dest='np', type=str, help='length 4 string representing number of processes used')
 parser.add_argument('--commit-date', dest='commit_date', type=str, help='Day of latest commit yyy-mm-dd')
 parser.add_argument('--git-hash', dest='git_hash', type=str, help='Shortened mfix-exa git_hash (length 7)')
 parser.add_argument('--git-branch', dest='git_branch', type=str, help='Shortened mfix-exa gitbranch (length 7)')
-parser.add_argument('--image-path', dest='image_path', type=str, help='Singularity image path')
+parser.add_argument('--sing-image-path', dest='sing_image_path', type=str, help='Singularity image path')
 parser.add_argument('--type', dest='type', type=str, default=None, help='Special argument passed to exa (None, adapt)')
 args = parser.parse_args()
 
@@ -69,11 +70,13 @@ def get_input_filepaths(work_dir, np, type):
 class MfixElasticsearchMessageBuilder:
 
     def __init__(self,
+                 index,
                  mfix_output_filepath,
                  metadata_filepath,
                  mfixdat_filepath,
                  inputs_filepath,
                  singularity_image_filepath):
+        self.index = index
         self.mfix_output_filepath = mfix_output_filepath
         self.metadata_filepath = metadata_filepath
         self.mfixdat_filepath = mfixdat_filepath
@@ -98,7 +101,7 @@ class MfixElasticsearchMessageBuilder:
         if not self.message:
             print("No mfix message built")
         else:
-            res = self.elasticsearch_client.index(index="mfix-hcs-200k", doc_type='_doc', body=self.message)
+            res = self.elasticsearch_client.index(index=self.index, doc_type='_doc', body=self.message)
             print(res['result'])
 
     def build_mfix_elasticsearch_message(self):
@@ -123,11 +126,11 @@ class MfixElasticsearchMessageBuilder:
         with open(filepath, 'r') as file:
             self.message['singularity_def_file'] = file.read()
 
-    def get_singularity_def_file_from_image(self, image_path):
+    def get_singularity_def_file_from_image(self, sing_image_path):
         '''Gets the Singularity definition file using
         singularity inspect and stores as a string'''
         self.message['singularity_def_file'] = subprocess.check_output(['singularity',
-                                                    'inspect', '--deffile', image_path]).decode("utf-8")
+                                                    'inspect', '--deffile', sing_image_path]).decode("utf-8")
 
     def get_np(self, filename):
         #'/home/aaron/hcs_200k_ws/np_0001/2019-07-05_2437f2c_np_0001_adapt'
@@ -201,8 +204,8 @@ output_filepath, metadata_file = get_output_filenames(args.work_dir,
 
 mfixdat_filepath, inputs_filepath = get_input_filepaths(args.work_dir, args.np, args.type)
 
-builder = MfixElasticsearchMessageBuilder(output_filepath, metadata_file,
-                            mfixdat_filepath, inputs_filepath, args.image_path)
+builder = MfixElasticsearchMessageBuilder(args.index, output_filepath, metadata_file,
+                            mfixdat_filepath, inputs_filepath, args.sing_image_path)
 builder.build_mfix_elasticsearch_message()
 
 ## Index results into elasticsearch
@@ -211,9 +214,9 @@ builder.index_mfix_message()
 ## Testing items
 # print(args)
 # python output_to_es.py --work-dir /home/aaron/hcs_200k_ws --np 0008 --commit-date 2019-07-05 \
-# --git-hash 2437f2c --git-branch phase2-develop --image-path /home/aaron/hcs_200k_ws/mfix-exa_phase2-develop_2437f2c.sif \
+# --git-hash 2437f2c --git-branch phase2-develop --sing-image-path /home/aaron/hcs_200k_ws/mfix-exa_phase2-develop_2437f2c.sif \
 # --type adapt
-# print(output_filepath, metadata_file, mfixdat_filepath, inputs_filepath, args.image_path)
+# print(output_filepath, metadata_file, mfixdat_filepath, inputs_filepath, args.sing_image_path)
 
 # for key, item in builder.message.items():
 #     print(key, item)

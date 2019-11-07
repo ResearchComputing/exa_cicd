@@ -84,9 +84,9 @@ for dir in {np_0001,np_0008,np_0027}; do
 
     np=${dir:(-4)}
     python3 output_to_es.py --work-dir $WD --np $np --commit-date $DATE \
-      --git-hash $HASH --git-branch $BRANCH --image-path $IMAGE
+      --git-hash $HASH --git-branch $BRANCH --sing-image-path $IMAGE
     python3 output_to_es.py --work-dir $WD --np $np --commit-date $DATE \
-      --git-hash $HASH --git-branch $BRANCH --image-path $IMAGE \
+      --git-hash $HASH --git-branch $BRANCH --sing-image-path $IMAGE \
       --type adapt
 
 done
