@@ -1,3 +1,4 @@
+# Code by: Hari Sitaraman
 ### Use as `python hcs_analyze.py "plt*" <no: of particles>
 ### It takes the glob pattern of the plot files and the number of particles as argument
 
@@ -6,19 +7,19 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 from sys import argv
 import glob
-​
+
 def get_analytic_soln(npart):
 #---------------------------------------------------------------------------------------------------------
 #           % Required user input
 #---------------------------------------------------------------------------------------------------------
 	Np   = npart;
-	e    = 0.8;
-	T0   = 1000.0;
-	diap = 0.01;
-	rho_s = 1.0;
-	rho_g = 1.0e-3;
-	mu_g = 2.0e-4;
-	Ld   = 64.0;
+	e    = 0.8; #restitution coefficient
+	T0   = 1000.0; #granular energy (cm^2/s^2)
+	diap = 0.01; #particle diameter (cm)
+	rho_s = 1.0; #density solid (g/cm^3)
+	rho_g = 1.0e-3; #density gas (g/cm^3)
+	mu_g = 2.0e-4; #viscosity ( g/(cm*s) )
+	Ld   = 64.0; # Ratio of box size to particle size
 #---------------------------------------------------------------------------------------------------------
 # Dependent Variables
 	phi   = Np*(np.pi/6.0)/Ld**3;
@@ -48,15 +49,15 @@ def get_analytic_soln(npart):
 	#%Sstar  = Rdrag**2/(chiMA*(1 + 3.5*np.sqrt(phi)+5.9*phi));
 	Kofphi = (0.096 + 0.142*phi**0.212)/(1 - phi)**4.454;
 #
-​
+
 	gammahat = 3.0*np.pi*mu_g*diap;
 	gamma    = gammahat*Rdiss0;
 	gammaK   = gammahat*(rho_g*diap/mu_g)*Kofphi;
-​
+
 #solution consts
 	A = zeta0hat + 2.0*gammaK/m;
 	B = 2.0*gamma/m;
-​
+
 	n = 800;
 	xs = np.zeros(n);
 	x  = np.zeros(n);
@@ -66,45 +67,45 @@ def get_analytic_soln(npart):
 	delexp=(maxexp-minexp)/(n-1)
 	for i in range(n):
     		xs[i]=10.0**(minexp+i*delexp)
-​
+
 	for i in range(n):
    		x[i] = xs[i]*diap/np.sqrt(T0);
     		y[i] = 1.0/(np.exp(B*x[i]/2.0) + (A/B)*np.sqrt(T0)*(np.exp(B*x[i]/2) - 1))**2;
 
     #% output: x = t (time), xs = t* = t*np.sqrt(T0)/diap, y = T(t*)/T0 (T0 = T(t* = 0))
     #fprintf(1,'%20.12e\t%20.12e\n',xs,y)
-​
+
 	outfile=open("analytic_soln.dat","w")
-​
+
 	for i in range(n):
     		outfile.write("%e\t%e\n"%(xs[i],y[i]))
-​
+
 	outfile.close()
 	return(xs,y,diap/np.sqrt(T0),T0)
-​
+
 class AMReXParticleHeader(object):
     '''
-​
+
     This class is designed to parse and store the information
     contained in an AMReX particle header file.
-​
+
     Usage:
-​
+
         header = AMReXParticleHeader("plt00000/particle0/Header")
         print(header.num_particles)
         print(header.version_string)
-​
+
     etc...
-​
+
     '''
-​
+
     def __init__(self, header_filename):
-​
+
         self.real_component_names = []
         self.int_component_names = []
         with open(header_filename, "r") as f:
             self.version_string = f.readline().strip()
-​
+
             particle_real_type = self.version_string.split('_')[-1]
             particle_real_type = self.version_string.split('_')[-1]
             if particle_real_type == 'double':
@@ -114,7 +115,7 @@ class AMReXParticleHeader(object):
             else:
                 raise RuntimeError("Did not recognize particle real type.")
             self.int_type = np.int32
-​
+
             self.dim = int(f.readline().strip())
             self.num_int_base = 2
             self.num_real_base = self.dim
@@ -131,52 +132,52 @@ class AMReXParticleHeader(object):
             self.max_next_id = int(f.readline().strip())
             self.finest_level = int(f.readline().strip())
             self.num_levels = self.finest_level + 1
-​
+
             if not self.is_checkpoint:
                 self.num_int_base = 0
                 self.num_int_extra = 0
                 self.num_int = 0
-​
+
             self.grids_per_level = np.zeros(self.num_levels, dtype='int64')
             for level_num in range(self.num_levels):
                 self.grids_per_level[level_num] = int(f.readline().strip())
-​
+
             self.grids = [[] for _ in range(self.num_levels)]
             for level_num in range(self.num_levels):
                 for grid_num in range(self.grids_per_level[level_num]):
                     entry = [int(val) for val in f.readline().strip().split()]
                     self.grids[level_num].append(tuple(entry))
-​
+
 def get_time_stamp(fldfname):
-​
+
     infile=open(fldfname+"/Header",'r')
-​
+
     infile.readline() #Hyperclaw-v1.1
     nvars=int(infile.readline().split()[0])
-​
+
     for i in range(nvars):
         line=infile.readline()
-​
+
     line=infile.readline() #3 (3 d coords?)
-​
+
     time=float(infile.readline().split()[0])
     return(time)
-​
+
 def get_computed_soln(fname_list,tscale,v2scale,ptype="particles"):
-​
+
 	outfile=open("vel_computed.dat","w")
-​
+
         m2_to_cm2 = 10000.0
 	nondim_temp=np.array([])
 	nondim_time=np.array([])
-​
+
     	for fn_i, fn in enumerate(fname_list):
-​
-		print(fn)
+
+		# print(fn)
     		time=get_time_stamp(fn)
     		base_fn = fn + "/" + ptype
     		header = AMReXParticleHeader(base_fn + "/Header")
-​
+
 
     		idtype = "(%d,)i4" % header.num_int
     		if header.real_type == np.float64:
@@ -192,56 +193,69 @@ def get_computed_soln(fname_list,tscale,v2scale,ptype="particles"):
         		for (which, count, where) in level_grids:
             			if count == 0: continue
             			fn = base_fn + "/Level_%d/DATA_%05d" % (lvl, which)
-​
+
             			with open(fn, 'rb') as f:
                 			f.seek(where)
                 			if header.is_checkpoint:
                     				ints   = np.fromfile(f, dtype = idtype, count=count)
                     				idata[ip:ip+count] = ints
-​
+
                 			floats = np.fromfile(f, dtype = fdtype, count=count)
                 			rdata[ip:ip+count] = floats
             			ip += count
-​
-    		vx=rdata[:,3]
-    		vy=rdata[:,4]
-    		vz=rdata[:,5]
-​
+
+    		# vx=rdata[:,3]
+    		# vy=rdata[:,4]
+    		# vz=rdata[:,5]
+
+    		vx=rdata[:,8]
+    		vy=rdata[:,9]
+    		vz=rdata[:,10]
+
+    		# vx=rdata[:,14]
+    		# vy=rdata[:,15]
+    		# vz=rdata[:,16]
+
+    		# for i in range(17):
+    		# 	print(i, np.mean(rdata[:,i]))
+
     		vxm=np.mean(vx)
     		vym=np.mean(vy)
     		vzm=np.mean(vz)
-​
+
+    		print(time, np.mean(vxm+vym+vzm))
+
     		pecvel_x=vx-vxm
     		pecvel_y=vy-vym
     		pecvel_z=vz-vzm
-​
+
     		pecvel_speed2 = pecvel_x**2+pecvel_y**2+pecvel_z**2
 
                 ndtime=time/tscale
                 ndtemp=0.33333*np.mean(pecvel_speed2)/v2scale*m2_to_cm2
-​
+
 		nondim_time = np.append(nondim_time,ndtime)
 		nondim_temp = np.append(nondim_temp,ndtemp)
 		outfile.write("%e\t%e\n"%(ndtime,ndtemp))
-​
+
 	return(nondim_time,nondim_temp);
-​
+
 #main
 font={'family':'Helvetica', 'size':'16'}
 mpl.rc('font',**font)
 mpl.rc('xtick',labelsize=12)
 mpl.rc('ytick',labelsize=12)
 plot_data=True
-​
+
 part_fn_pattern=argv[1]
 npart=int(argv[2])
 part_fn_list = glob.glob(part_fn_pattern)
 part_fn_list.sort()
-​
+
 (a_time,a_temp,tscale,v2scale)=get_analytic_soln(npart)
-​
+
 (c_time,c_temp) = get_computed_soln(part_fn_list,tscale,v2scale)
-​
+
 if(plot_data):
     plt.yscale('log')
     plt.xscale('log')
@@ -253,3 +267,41 @@ if(plot_data):
     plt.tight_layout()
     plt.savefig("haffs_law.png")
     #plt.show()
+
+
+#plt00350
+# (0, 0.0031999959553593686)
+# (1, 0.0031910213029517267)
+# (2, 0.0031997890426250773)
+# (3, 5.0000000000000016e-05)
+# (4, 5.235987755982988e-13)
+# (5, 5.23598775598299e-10)
+# (6, 1000.0)
+# (7, 1.9098593171027438e+18)
+# (8, -3.1728605720984158e-06)
+# (9, -4.436728884501321e-06)
+# (10, 2.09922627028046e-06)
+# (11, 0.0)
+# (12, 0.0)
+# (13, 0.0)
+# (14, 2.4745950905806545e-14)
+# (15, -4.313611055309988e-14)
+# (16, 3.646736371892209e-14)
+# plt00375
+# (0, 0.0032011354096672666)
+# (1, 0.0031920271201393447)
+# (2, 0.003200692614333661)
+# (3, 5.0000000000000016e-05)
+# (4, 5.235987755982988e-13)
+# (5, 5.23598775598299e-10)
+# (6, 1000.0)
+# (7, 1.9098593171027438e+18)
+# (8, -2.8698383532293466e-06)
+# (9, -4.595127779792647e-06)
+# (10, 2.3467459996777217e-06)
+# (11, 0.0)
+# (12, 0.0)
+# (13, 0.0)
+# (14, 3.179856508951706e-14)
+# (15, 5.4056559369093955e-15)
+# (16, 3.426181712425837e-14)
