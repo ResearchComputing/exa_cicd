@@ -89,10 +89,10 @@ for dir in {np_0001,np_0008,np_0027}; do
     np=${dir:(-4)}
     python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np --commit-date $DATE \
       --git-hash $HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-      --validation-image-url "${URL_BASE}"
+      --validation-image-url "${URL_BASE}.png"
     python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np --commit-date $DATE \
       --git-hash $HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-      --validation-image-url "${URL_BASE}_adapt" --type adapt
+      --validation-image-url "${URL_BASE}_adapt.png" --type adapt
 
 done
 
