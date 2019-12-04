@@ -18,6 +18,7 @@ parser.add_argument('--git-hash', dest='git_hash', type=str, help='Shortened mfi
 parser.add_argument('--git-branch', dest='git_branch', type=str, help='Shortened mfix-exa gitbranch (length 7)')
 parser.add_argument('--sing-image-path', dest='sing_image_path', type=str, help='Singularity image path')
 parser.add_argument('--type', dest='type', type=str, default=None, help='Special argument passed to exa (None, adapt)')
+parser.add_argument('--validation-image-url', dest='validation_image_url', type=str, default=None, help='MFiX validation image url')
 args = parser.parse_args()
 
 def get_output_filenames(work_dir, np, commit_date, git_hash, git_branch, type):
