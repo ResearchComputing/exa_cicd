@@ -75,13 +75,15 @@ class MfixElasticsearchMessageBuilder:
                  metadata_filepath,
                  mfixdat_filepath,
                  inputs_filepath,
-                 singularity_image_filepath):
+                 singularity_image_filepath,
+                 validation_image_url):
         self.es_index = es_index
         self.mfix_output_filepath = mfix_output_filepath
         self.metadata_filepath = metadata_filepath
         self.mfixdat_filepath = mfixdat_filepath
         self.inputs_filepath = inputs_filepath
         self.singularity_image_filepath = singularity_image_filepath
+        self.validation_image_url = validation_image_url
         self.function_list = ["calc_particle_collisions()",
             "MLNodeLaplacian::Fsmooth()",
             "FillBoundary_nowait()",
@@ -112,10 +114,14 @@ class MfixElasticsearchMessageBuilder:
         self.get_singularity_def_file_from_image(self.singularity_image_filepath)
         self.get_inputs_file(self.inputs_filepath)
         self.get_mfix_dat_file(self.mfixdat_filepath)
+        self.get_validation_image_url(self.validation_image_url)
 
     def get_inputs_file(self, filepath):
         with open(filepath, 'r') as file:
             self.message['inputs'] = file.read()
+
+    def get_validation_image_url(self, image_url):
+        self.message['image_url'] = image_url
 
     def get_mfix_dat_file(self, filepath):
         with open(filepath, 'r') as file:
