@@ -83,12 +83,16 @@ git pull
 ## Index results in ES
 for dir in {np_0001,np_0008,np_0027}; do
 
+    export DATE=$(date '+%Y-%m-%d_%H:%M:%S')
+    export URL_BASE="/images/${ES_INDEX}/np_${np}/${BRANCH}_${HASH}_${DATE}"
+
     np=${dir:(-4)}
-    python3 output_to_es.py --index $ES_INDEX --work-dir $WD --np $np --commit-date $DATE \
-      --git-hash $HASH --git-branch $BRANCH --sing-image-path $IMAGE
-    python3 output_to_es.py --index $ES_INDEX --work-dir $WD --np $np --commit-date $DATE \
+    python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np --commit-date $DATE \
       --git-hash $HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-      --type adapt
+      --validation-image-url "${URL_BASE}"
+    python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np --commit-date $DATE \
+      --git-hash $HASH --git-branch $BRANCH --sing-image-path $IMAGE \
+      --validation-image-url "${URL_BASE}_adapt" --type adapt
 
 done
 
