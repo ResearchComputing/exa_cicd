@@ -212,7 +212,8 @@ output_filepath, metadata_file = get_output_filenames(args.work_dir,
 mfixdat_filepath, inputs_filepath = get_input_filepaths(args.work_dir, args.np, args.type)
 
 builder = MfixElasticsearchMessageBuilder(args.es_index, output_filepath, metadata_file,
-                            mfixdat_filepath, inputs_filepath, args.sing_image_path)
+                            mfixdat_filepath, inputs_filepath, args.sing_image_path,
+                            args.validation_image_url)
 builder.build_mfix_elasticsearch_message()
 
 ## Index results into elasticsearch
