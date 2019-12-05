@@ -43,9 +43,9 @@ printf "\n"
 ## Modules
 ml 2>&1 | grep 1 >> ${BRANCH}_${COMMIT}_info.txt
 
-export DATE=$(sed '1q;d' ${BRANCH}_${COMMIT}_info.txt | awk '{print $1;}')
+export COMMIT_DATE=$(sed '1q;d' ${BRANCH}_${COMMIT}_info.txt | awk '{print $1;}')
 export HASH=$(sed '2q;d' ${BRANCH}_${COMMIT}_info.txt)
-echo $DATE
+echo $COMMIT_DATE
 echo $HASH
 echo $SLURM_NODELIST
 
@@ -63,8 +63,8 @@ for dir in {np_0001,np_0008,np_0027}; do
     np=$((10#$np))
 
     # Run default then timestepping
-    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs >> ${DATE}_${HASH}_${dir}"
-    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs_adapt >> ${DATE}_${HASH}_${dir}_adapt"
+    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs >> ${COMMIT_DATE}_${HASH}_${dir}"
+    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs_adapt >> ${COMMIT_DATE}_${HASH}_${dir}_adapt"
 
 ##mfix.use_tstepadapt=0
     #Consider mpirun -np $np --map-by node ...
@@ -83,14 +83,14 @@ git pull
 ## Index results in ES
 for dir in {np_0001,np_0008,np_0027}; do
 
-    export DATE=$(date '+%Y-%m-%d_%H:%M:%S')
-    export URL_BASE="/images/${ES_INDEX}/np_${np}/${BRANCH}_${HASH}_${DATE}"
+    export RUN_DATE=$(date '+%Y-%m-%d_%H:%M:%S')
+    export URL_BASE="/images/${ES_INDEX}/np_${np}/${BRANCH}_${HASH}_${RUN_DATE}"
 
     np=${dir:(-4)}
-    python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np --commit-date $DATE \
+    python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np --commit-date $COMMIT_DATE \
       --git-hash $HASH --git-branch $BRANCH --sing-image-path $IMAGE \
       --validation-image-url "${URL_BASE}.png"
-    python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np --commit-date $DATE \
+    python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np --commit-date $COMMIT_DATE \
       --git-hash $HASH --git-branch $BRANCH --sing-image-path $IMAGE \
       --validation-image-url "${URL_BASE}_adapt.png" --type adapt
 
