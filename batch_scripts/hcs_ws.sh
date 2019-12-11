@@ -26,32 +26,6 @@ export MFIX=/app/mfix/build/mfix/mfix
 export IMAGE=/scratch/summit/holtat/singularity/mfix-exa_${BRANCH}_${COMMIT}.sif
 export MPIRUN=/pl/active/mfix/holtat/openmpi-2.1.6-install/bin/mpirun
 
-## Formatting for output files
-## Latest commit date, format: 2018-02-19 12:44:03 -0800
-cd $WD
-singularity exec $IMAGE bash -c "cd /app/mfix; git log -n 1 --pretty=format:'%ai'" > ${BRANCH}_${COMMIT}_info.txt
-printf "\n" >> ${BRANCH}_${COMMIT}_info.txt
-## Shortened latest commit hash, format: b119a72
-singularity exec $IMAGE bash -c "cd /app/mfix; git log -n 1 --pretty=format:'%h'" >> ${BRANCH}_${COMMIT}_info.txt
-printf "\n" >> ${BRANCH}_${COMMIT}_info.txt
-## Nodelist
-echo $SLURM_NODELIST >> ${BRANCH}_${COMMIT}_info.txt
-printf "\n" >> ${BRANCH}_${COMMIT}_info.txt
-## JobID
-echo $SLURM_JOBID >>${BRANCH}_${COMMIT}_info.txt
-printf "\n"
-## Modules
-ml 2>&1 | grep 1 >> ${BRANCH}_${COMMIT}_info.txt
-
-export COMMIT_DATE=$(sed '1q;d' ${BRANCH}_${COMMIT}_info.txt | awk '{print $1;}')
-export HASH=$(sed '2q;d' ${BRANCH}_${COMMIT}_info.txt)
-echo $COMMIT_DATE
-echo $HASH
-echo $SLURM_NODELIST
-
-#mkdir -p /projects/holtat/CICD/results/hcs_80k_large_weak_scaling/metadata
-#cp ${BRANCH}_${COMMIT}_info.txt /projects/holtat/CICD/results/hcs_80k_large_weak_scaling/metadata/${DATE}_${HASH}.txt
-
 for dir in {np_0001,np_0008,np_0027}; do
 
     # Make directory if needed

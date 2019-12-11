@@ -178,32 +178,27 @@ class MfixElasticsearchMessageBuilder:
                     break
 
 
-    def get_git_info(self, job_info_filepath):
-        #'/home/aaron/hcs_200k_ws/phase2-develop_2437f2c_info.txt'
-        with open(job_info_filepath, 'r') as file:
-            job_info = file.readlines()
+    def get_git_info(self):
+        self.message['git_commit_time'] = subprocess.check_output(['singularity', 'exec',
+                                        self.singularity_image_filepath, 'bash', '-c',
+                                        "cd /app/mfix; git log -n 1 --pretty=format:'%ai'"]).decode("utf-8")
 
-            for jj, line in enumerate(job_info):
-                if jj==0:
-                    self.message['git_commit_time'] = line.split(' ')[0] + \
-                                            "T" + line.split(' ')[1] + "Z"
-                elif jj==1:
-                    self.message['git_commit_hash'] = line.strip()
-                elif jj==2:
-                    self.message['job_nodes'] = line.strip()
-                elif jj==3:
-                    self.message['jobnum'] = line.strip()
-                elif jj==5:
-                    self.message['modules'] = line.strip()
+        self.message['git_commit_hash'] = subprocess.check_output(['singularity', 'exec',
+                                        self.singularity_image_filepath, 'bash', '-c',
+                                        "cd /app/mfix; git log -n 1 --pretty=format:'%h'"]).decode("utf-8")
 
-    def get_slurm_job_info(self, filename):
-        #'/home/aaron/hcs_200k_ws/phase2-develop_2437f2c_info.txt'
-        job_info_file = filename.split('/')
-        job_info = job_info_file[-1].split('_')
-        self.message['git_branch'] = job_info[-3]
+        self.message['git_branch'] = subprocess.check_output(['singularity', 'exec',
+                                        self.singularity_image_filepath, 'bash', '-c',
+                                        "cd /app/mfix; git rev-parse --abbrev-ref HEAD"]).decode("utf-8")
 
+
+    def get_slurm_job_info(self):
         runtime = datetime.datetime.now()
         self.message['date'] = runtime.strftime("%Y-%m-%dT%H:%M:%SZ")
+
+        self.message['job_nodes'] = os.environ['SLURM_NODELIST']
+        self.message['jobnum'] = os.environ['SLURM_JOBID']
+        self.message['modules'] = os.environ["LOADEDMODULES"]
 
 
 output_filepath, metadata_file = get_output_filenames(args.work_dir,
