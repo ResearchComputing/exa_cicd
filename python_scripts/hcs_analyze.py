@@ -1,25 +1,38 @@
-# Code by: Hari Sitaraman
+# Original code by: Hari Sitaraman
 ### Use as `python hcs_analyze.py "plt*" <no: of particles>
 ### It takes the glob pattern of the plot files and the number of particles as argument
 
+import argparse
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
 from sys import argv
 import glob
 
-def get_analytic_soln(npart):
+parser = argparse.ArgumentParser(description='Homogeneous cooling system property inputs')
+parser.add_arguement('-pfp', '--plot-file-pattern', dest='pfp', type=str, help='Plot file pattern prefix glob (ex: plt*)')
+parser.add_arguement('-np', '--number-particles', dest='npart', type=float, help='number of particles')
+parser.add_arguement('-e', '--restitution-coefficient', dest='e', type=float, help='particle-particle restitution coefficient')
+parser.add_argument('-T0', '--granular-energy', dest='T0', type=float, help='granular energy (cm^2/s^2)')
+parser.add_argument('-diap', '--particle-diameter', dest='diap', type=float, help='particle_diameter (cm)')
+parser.add_argument('--rho-s', dest='rho_s', type=float, help='solids density (g/cm^3)')
+parser.add_argument('--rho-g', dest='rho_g', type=float, help='gas density (g/cm^3)')
+parser.add_argument('--mu-g', dest='mu_g', type=float, help='viscosity (g/cm*s)')
+parser.add_argument('--ld', dest='ld', type=float, help='ratio of box size to particle size')
+args = parser.parse_args()
+
+def get_analytic_soln(npart, e, T0, diap, rho_s, rho_g, mu_g, Ld):
 #---------------------------------------------------------------------------------------------------------
 #           % Required user input
 #---------------------------------------------------------------------------------------------------------
 	Np   = npart;
-	e    = 0.8; #restitution coefficient
-	T0   = 1000.0; #granular energy (cm^2/s^2)
-	diap = 0.01; #particle diameter (cm)
-	rho_s = 1.0; #density solid (g/cm^3)
-	rho_g = 1.0e-3; #density gas (g/cm^3)
-	mu_g = 2.0e-4; #viscosity ( g/(cm*s) )
-	Ld   = 64.0; # Ratio of box size to particle size
+	# e    = 0.8; #restitution coefficient
+	# T0   = 1000.0; #granular energy (cm^2/s^2)
+	# diap = 0.01; #particle diameter (cm)
+	# rho_s = 1.0; #density solid (g/cm^3)
+	# rho_g = 1.0e-3; #density gas (g/cm^3)
+	# mu_g = 2.0e-4; #viscosity ( g/(cm*s) )
+	# Ld   = 64.0; # Ratio of box size to particle size
 #---------------------------------------------------------------------------------------------------------
 # Dependent Variables
 	phi   = Np*(np.pi/6.0)/Ld**3;
@@ -204,20 +217,9 @@ def get_computed_soln(fname_list,tscale,v2scale,ptype="particles"):
                 			rdata[ip:ip+count] = floats
             			ip += count
 
-    		# vx=rdata[:,3]
-    		# vy=rdata[:,4]
-    		# vz=rdata[:,5]
-
     		vx=rdata[:,8]
     		vy=rdata[:,9]
     		vz=rdata[:,10]
-
-    		# vx=rdata[:,14]
-    		# vy=rdata[:,15]
-    		# vz=rdata[:,16]
-
-    		# for i in range(17):
-    		# 	print(i, np.mean(rdata[:,i]))
 
     		vxm=np.mean(vx)
     		vym=np.mean(vy)
@@ -247,13 +249,16 @@ mpl.rc('xtick',labelsize=12)
 mpl.rc('ytick',labelsize=12)
 plot_data=True
 
-part_fn_pattern=argv[1]
-npart=int(argv[2])
-part_fn_list = glob.glob(part_fn_pattern)
+# part_fn_pattern=argv[1]
+# npart=int(argv[2])
+# part_fn_list = glob.glob(part_fn_pattern)
+# part_fn_list.sort()
+
+(a_time,a_temp,tscale,v2scale)=get_analytic_soln(args.npart, args.e, args.T0, args.diap, args.rho_s,
+                                      			  args.rho_g, args.mu_g, args.ld)
+
+part_fn_list = glob.glob(args.pfp)
 part_fn_list.sort()
-
-(a_time,a_temp,tscale,v2scale)=get_analytic_soln(npart)
-
 (c_time,c_temp) = get_computed_soln(part_fn_list,tscale,v2scale)
 
 if(plot_data):
