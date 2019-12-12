@@ -20,6 +20,7 @@ parser.add_argument('--rho-s', dest='rho_s', type=float, required=True, help='so
 parser.add_argument('--rho-g', dest='rho_g', type=float, required=True, help='gas density (g/cm^3)')
 parser.add_argument('--mu-g', dest='mu_g', type=float, required=True, help='viscosity (g/cm*s)')
 parser.add_argument('--ld', dest='ld', type=float, required=True, help='ratio of box size to particle size')
+parser.add_argument('--outfile', dest='outfile', type=str, required=True, help='Path to save plot file')
 args = parser.parse_args()
 
 def get_analytic_soln(npart, e, T0, diap, rho_s, rho_g, mu_g, Ld):
@@ -27,7 +28,7 @@ def get_analytic_soln(npart, e, T0, diap, rho_s, rho_g, mu_g, Ld):
 #           % Required user input
 #---------------------------------------------------------------------------------------------------------
     Np   = npart;
-    print(e, T0, diap, rho_s, rho_g, mu_g, Ld)
+    # print(e, T0, diap, rho_s, rho_g, mu_g, Ld)
     # e    = 0.8; #restitution coefficient
     # T0   = 1000.0; #granular energy (cm^2/s^2)
     # diap = 0.01; #particle diameter (cm)
@@ -227,7 +228,7 @@ def get_computed_soln(fname_list,tscale,v2scale,ptype="particles"):
         vym=np.mean(vy)
         vzm=np.mean(vz)
 
-        print(time, np.mean(vxm+vym+vzm))
+        # print(time, np.mean(vxm+vym+vzm))
 
         pecvel_x=vx-vxm
         pecvel_y=vy-vym
@@ -244,19 +245,22 @@ def get_computed_soln(fname_list,tscale,v2scale,ptype="particles"):
 
     return(nondim_time,nondim_temp);
 
-#main
+#### main ####
 font={'family':'Helvetica', 'size':'16'}
 mpl.rc('font',**font)
 mpl.rc('xtick',labelsize=12)
 mpl.rc('ytick',labelsize=12)
 plot_data=True
 
-# part_fn_pattern=argv[1]
-# npart=int(argv[2])
-# part_fn_list = glob.glob(part_fn_pattern)
-# part_fn_list.sort()
+# Remove old files if they exist
+for fname in ['vel_computed.dat', 'analytic_soln.dat', args.outfile]:
+    try:
+        os.remove(fname)
+    except:
+        pass
+
+# Find and sort all plot files
 part_fn_list = glob.glob(args.pfp)
-print(part_fn_list.sort())
 part_fn_list.sort()
 
 (a_time,a_temp,tscale,v2scale)=get_analytic_soln(args.npart, args.e, args.T0, args.diap, args.rho_s,
@@ -273,8 +277,8 @@ if(plot_data):
     plt.ylabel("Non-dimensional temperature $(T/T_0)$")
     plt.legend(loc="best")
     plt.tight_layout()
-    # plt.savefig("haffs_law.png")
-    plt.show()
+    plt.savefig(args.outfile)
+    # plt.show()
 
 
 #plt00350
