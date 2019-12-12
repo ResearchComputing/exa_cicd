@@ -6,12 +6,12 @@
 #SBATCH --output /scratch/summit/holtat/exa_slurm_output/hcs_200k_ws_%j
 
 #Inputs
-export COMMIT=$1
+export COMMIT_HASH=$1
 export WD=$2
 export ES_INDEX=$3
 
-echo 'COMMIT'
-echo $COMMIT
+echo 'COMMIT_HASH'
+echo $COMMIT_HASH
 
 # Modules don't work without this
 source /etc/profile.d/lmod.sh
@@ -20,10 +20,10 @@ ml use /pl/active/mfix/holtat/modules
 ml singularity/3.3.0 gcc/8.2.0 openmpi_2.1.6
 
 cd /scratch/summit/holtat/singularity
-singularity pull --allow-unsigned --force library://aarontholt/default/mfix-exa:${BRANCH}_${COMMIT}
+singularity pull --allow-unsigned --force library://aarontholt/default/mfix-exa:${BRANCH}_${COMMIT_HASH}
 
 export MFIX=/app/mfix/build/mfix/mfix
-export IMAGE=/scratch/summit/holtat/singularity/mfix-exa_${BRANCH}_${COMMIT}.sif
+export IMAGE=/scratch/summit/holtat/singularity/mfix-exa_${BRANCH}_${COMMIT_HASH}.sif
 export MPIRUN=/pl/active/mfix/holtat/openmpi-2.1.6-install/bin/mpirun
 
 for dir in {np_0001,np_0008,np_0027}; do
@@ -37,8 +37,8 @@ for dir in {np_0001,np_0008,np_0027}; do
     np=$((10#$np))
 
     # Run default then timestepping
-    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs >> ${COMMIT_DATE}_${HASH}_${dir}"
-    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs_adapt >> ${COMMIT_DATE}_${HASH}_${dir}_adapt"
+    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs >> ${COMMIT_DATE}_${COMMIT_HASH}_${dir}"
+    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs_adapt >> ${COMMIT_DATE}_${COMMIT_HASH}_${dir}_adapt"
 
 ##mfix.use_tstepadapt=0
     #Consider mpirun -np $np --map-by node ...
@@ -58,23 +58,14 @@ git pull
 for dir in {np_0001,np_0008,np_0027}; do
 
     export RUN_DATE=$(date '+%Y-%m-%d_%H:%M:%S')
-    export URL_BASE="/images/${ES_INDEX}/np_${np}/${BRANCH}_${HASH}_${RUN_DATE}"
+    export URL_BASE="/images/${ES_INDEX}/np_${np}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
 
     np=${dir:(-4)}
     python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np --commit-date $COMMIT_DATE \
-      --git-hash $HASH --git-branch $BRANCH --sing-image-path $IMAGE \
+      --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
       --validation-image-url "${URL_BASE}.png"
     python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np --commit-date $COMMIT_DATE \
-      --git-hash $HASH --git-branch $BRANCH --sing-image-path $IMAGE \
+      --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
       --validation-image-url "${URL_BASE}_adapt.png" --type adapt
 
 done
-
-## Copy results to projects
-# cd $WD
-# for dir in {np_00001,np_00008,np_00027,np_00064,np_00125,np_00216}; do
-#     mkdir -p /projects/holtat/CICD/results/hcs_80k_large_weak_scaling/${dir}
-#     cp ${dir}/${DATE}_${HASH}* /projects/holtat/CICD/results/hcs_80k_large_weak_scaling/${dir}/
-# done
-
-#for ii in np_*; do cp -v $ii/2018* /projects/holtat/CICD/results/weak_scaling_small/${ii}/; done
