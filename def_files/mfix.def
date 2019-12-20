@@ -1,5 +1,6 @@
 BootStrap:library
 From:aarontholt/default/mfix-exa:openmpi_2.1.6
+From:aarontholt/default/openmpi:2.1.6
 
 #Bootstrap:localimage
 #From:openmpi_2.1.6.sif
