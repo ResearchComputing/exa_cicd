@@ -13,7 +13,7 @@ parser = argparse.ArgumentParser(description='Inputs for process class')
 parser.add_argument('--es-index', dest='es_index', type=str, help='Elasticsearch index name')
 parser.add_argument('--work-dir', dest='work_dir', type=str, help='Directory where data directories live')
 parser.add_argument('--np', dest='np', type=str, help='length 4 string representing number of processes used')
-parser.add_argument('--commit-date', dest='commit_date', type=str, help='Day of latest commit yyy-mm-dd')
+parser.add_argument('--mfix-output-path', dest='mfix_output_data', type=str, help='Filepath of mfix timing data ${RUN_DATE}_${COMMIT_HASH}_${dir}')
 parser.add_argument('--git-hash', dest='git_hash', type=str, help='Shortened mfix-exa git_hash (length 7)')
 parser.add_argument('--git-branch', dest='git_branch', type=str, help='Shortened mfix-exa gitbranch (length 7)')
 parser.add_argument('--sing-image-path', dest='sing_image_path', type=str, help='Singularity image path')
@@ -21,30 +21,6 @@ parser.add_argument('--type', dest='type', type=str, default=None, help='Special
 parser.add_argument('--validation-image-url', dest='validation_image_url', type=str, default=None, help='MFiX validation image url')
 args = parser.parse_args()
 
-def get_output_filenames(work_dir, np, commit_date, git_hash, git_branch, type):
-    '''Inputs:
-    work_dir: String base output directory filepath (ex: /scratch/summit/$USER/hcs_200k_ws)
-    np: 4 digit string representing number of processes used
-    git_hash: shortened mfix-exa githash, string of length 7
-    commit_date: string of the commit_date yyyy-mm-dd
-    type: string of the special parameters used (ex: adapt)
-    singularity_image_path: string filepath where image is found
-    Returns the mfix output filepath, the metadata filepath, and the
-    Singularity image filepath '''
-
-    if not work_dir[-1] == '/':
-        work_dir = work_dir + '/'
-    output_filepath = work_dir + 'np_' + np + '/' + commit_date + '_' + \
-                          git_hash + '_np_' + np
-    if type:
-        output_filepath += '_' + type
-
-    metadata_filepath = work_dir + git_branch + '_' + git_hash + '_info.txt'
-
-    # singularity_image_filepath = singularity_dir + 'mfix-exa_' + git_branch + \
-    #                              '_' + git_hash + '.sif'
-
-    return output_filepath, metadata_filepath
 
 def get_input_filepaths(work_dir, np, type):
     '''Inputs:
@@ -201,12 +177,12 @@ class MfixElasticsearchMessageBuilder:
         self.message['modules'] = os.environ["LOADEDMODULES"]
 
 
-output_filepath, metadata_file = get_output_filenames(args.work_dir,
-        args.np, args.commit_date, args.git_hash, args.git_branch, args.type)
+# output_filepath, metadata_file = get_output_filenames(args.work_dir,
+#         args.np, args.commit_date, args.git_hash, args.git_branch, args.type)
 
 mfixdat_filepath, inputs_filepath = get_input_filepaths(args.work_dir, args.np, args.type)
 
-builder = MfixElasticsearchMessageBuilder(args.es_index, output_filepath, metadata_file,
+builder = MfixElasticsearchMessageBuilder(args.es_index, args.mfix_output_data, metadata_file,
                             mfixdat_filepath, inputs_filepath, args.sing_image_path,
                             args.validation_image_url)
 builder.build_mfix_elasticsearch_message()

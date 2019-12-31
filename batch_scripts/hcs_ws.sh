@@ -3,15 +3,19 @@
 #SBATCH --exclusive
 #SBATCH --account ucb1_summit3
 #SBATCH --time 04:00:00
-#SBATCH --output /scratch/summit/holtat/exa_slurm_output/hcs_200k_ws_%j
+#SBATCH --output /scratch/summit/holtat/exa_slurm_output/hcs_5k_ws_%j
 
 #Inputs
 export COMMIT_HASH=$1
 export WD=$2
 export ES_INDEX=$3
+export RUN_DATE=$(date '+%Y-%m-%d_%H:%M:%S')
 
 echo 'COMMIT_HASH'
 echo $COMMIT_HASH
+
+# Copy Mfix input files from /projects
+cp -r --no-clobber /projects/holtat/CICD/hcs_5k_ws/* $WD
 
 # Modules don't work without this
 source /etc/profile.d/lmod.sh
@@ -37,8 +41,8 @@ for dir in {np_0001,np_0008,np_0027}; do
     np=$((10#$np))
 
     # Run default then timestepping
-    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs >> ${COMMIT_DATE}_${COMMIT_HASH}_${dir}"
-    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs_adapt >> ${COMMIT_DATE}_${COMMIT_HASH}_${dir}_adapt"
+    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs >> ${RUN_DATE}_${COMMIT_HASH}_${dir}"
+    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs_adapt >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_adapt"
 
 ##mfix.use_tstepadapt=0
     #Consider mpirun -np $np --map-by node ...
@@ -57,15 +61,16 @@ git pull
 ## Index results in ES
 for dir in {np_0001,np_0008,np_0027}; do
 
-    export RUN_DATE=$(date '+%Y-%m-%d_%H:%M:%S')
     export URL_BASE="/images/${ES_INDEX}/np_${np}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
 
     np=${dir:(-4)}
-    python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np --commit-date $COMMIT_DATE \
+    python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
       --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-      --validation-image-url "${URL_BASE}.png"
-    python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np --commit-date $COMMIT_DATE \
+      --validation-image-url "${URL_BASE}.png" \
+      --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}"
+    python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
       --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-      --validation-image-url "${URL_BASE}_adapt.png" --type adapt
+      --validation-image-url "${URL_BASE}_adapt.png" \
+      --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_adapt" --type adapt
 
 done
