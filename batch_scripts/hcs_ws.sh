@@ -22,7 +22,7 @@ ml singularity/3.3.0 gcc/8.2.0 openmpi_2.1.6
 cd /scratch/summit/holtat/singularity
 singularity pull --allow-unsigned --force library://aarontholt/default/mfix-exa:${BRANCH}_${COMMIT_HASH}
 
-export MFIX=/app/mfix/build/mfix/mfix
+export MFIX=/app/mfix/build/mfix
 export IMAGE=/scratch/summit/holtat/singularity/mfix-exa_${BRANCH}_${COMMIT_HASH}.sif
 export MPIRUN=/pl/active/mfix/holtat/openmpi-2.1.6-install/bin/mpirun
 
