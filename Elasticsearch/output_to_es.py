@@ -49,14 +49,12 @@ class MfixElasticsearchMessageBuilder:
     def __init__(self,
                  es_index,
                  mfix_output_filepath,
-                 metadata_filepath,
                  mfixdat_filepath,
                  inputs_filepath,
                  singularity_image_filepath,
                  validation_image_url):
         self.es_index = es_index
         self.mfix_output_filepath = mfix_output_filepath
-        self.metadata_filepath = metadata_filepath
         self.mfixdat_filepath = mfixdat_filepath
         self.inputs_filepath = inputs_filepath
         self.singularity_image_filepath = singularity_image_filepath
@@ -182,7 +180,7 @@ class MfixElasticsearchMessageBuilder:
 
 mfixdat_filepath, inputs_filepath = get_input_filepaths(args.work_dir, args.np, args.type)
 
-builder = MfixElasticsearchMessageBuilder(args.es_index, args.mfix_output_data, metadata_file,
+builder = MfixElasticsearchMessageBuilder(args.es_index, args.mfix_output_data,
                             mfixdat_filepath, inputs_filepath, args.sing_image_path,
                             args.validation_image_url)
 builder.build_mfix_elasticsearch_message()
