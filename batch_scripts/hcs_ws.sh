@@ -42,7 +42,7 @@ for dir in {np_0001,np_0008,np_0027}; do
 
     # Run default then timestepping
     $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs >> ${RUN_DATE}_${COMMIT_HASH}_${dir}"
-    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs_adapt >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_adapt"
+    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.use_tstepadapt=1 amr.plot_file=adapt >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_adapt"
 
 ##mfix.use_tstepadapt=0
     #Consider mpirun -np $np --map-by node ...
@@ -79,10 +79,10 @@ done
 
 
 ## Plot results
-cd /projects/holtat/CICD/exa_cicd/python_scripts
+export HCS_ANALYZE=/projects/holtat/CICD/exa_cicd/python_scripts/hcs_analyze.py
 for dir in {np_0001,np_0008,np_0027}; do
 
-    export URL_BASE="/images/${ES_INDEX}/np_${np}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
+    cd $WD/$dir
 
     # Get processor count without leading zeros
     num_process=${dir:(-4)}
@@ -94,7 +94,8 @@ for dir in {np_0001,np_0008,np_0027}; do
     # Each lin in particle_input.dat represents a particle (minus header)
     num_particles=$(($(wc -l $dir/particle_input.dat | cut -c1-5)-1))
 
-    python3 hcs_analyze.py -pfp "plt*" -np $num_particles -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld 64 --outfile haff.png
+    python3 $HCS_ANALYZE -pfp "plt*" -np $num_particles -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld 64 --outfile haff.png
+    python3 $HCS_ANALYZE -pfp "adapt*" -np $num_particles -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld 64 --outfile adapt.png
 
 
 done
