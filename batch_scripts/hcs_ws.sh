@@ -9,7 +9,7 @@
 export COMMIT_HASH=$1
 export WD=$2
 export ES_INDEX=$3
-export RUN_DATE=$(date '+%Y-%m-%d_%H:%M:%S')
+export RUN_DATE=$(date '+%Y-%m-%d_%H-%M-%S')
 
 echo 'COMMIT_HASH'
 echo $COMMIT_HASH
@@ -68,9 +68,34 @@ for dir in {np_0001,np_0008,np_0027}; do
       --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
       --validation-image-url "${URL_BASE}.png" \
       --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}"
+
     python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
       --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
       --validation-image-url "${URL_BASE}_adapt.png" \
       --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_adapt" --type adapt
 
 done
+
+
+
+## Plot results
+cd /projects/holtat/CICD/exa_cicd/python_scripts
+for dir in {np_0001,np_0008,np_0027}; do
+
+    export URL_BASE="/images/${ES_INDEX}/np_${np}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
+
+    # Get processor count without leading zeros
+    num_process=${dir:(-4)}
+    num_process=$(echo $num_process | sed 's/^0*//')
+
+    # ld is ratio of box size to particle size
+    ld=$(($num_process*64))
+
+    # Each lin in particle_input.dat represents a particle (minus header)
+    num_particles=$(($(wc -l $dir/particle_input.dat | cut -c1-5)-1))
+
+    python3 hcs_analyze.py -pfp "plt*" -np $num_particles -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld 64 --outfile haff.png
+
+
+done
+#python3 /home/aaron/exa_cicd/python_scripts/hcs_analyze.py -pfp "plt*" -np 5050 -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld 64 --outfile haff.png
