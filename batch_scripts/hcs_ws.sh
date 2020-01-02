@@ -83,6 +83,8 @@ export HCS_ANALYZE=/projects/holtat/CICD/exa_cicd/python_scripts/hcs_analyze.py
 for dir in {np_0001,np_0008,np_0027}; do
 
     cd $WD/$dir
+    rm -rf plt*.old*
+    rm -rf adapt*.old*
 
     # Get processor count without leading zeros
     num_process=${dir:(-4)}
