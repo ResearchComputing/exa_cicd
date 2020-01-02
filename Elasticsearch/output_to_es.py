@@ -89,7 +89,7 @@ class MfixElasticsearchMessageBuilder:
         self.get_singularity_def_file_from_image(self.singularity_image_filepath)
         self.get_inputs_file(self.inputs_filepath)
         self.get_mfix_dat_file(self.mfixdat_filepath)
-        self.get_validation_image_url(self.validation_image_url)
+        self.message['image_url'] = self.validation_image_url
 
     def get_inputs_file(self, filepath):
         with open(filepath, 'r') as file:
