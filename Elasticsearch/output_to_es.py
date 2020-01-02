@@ -95,9 +95,6 @@ class MfixElasticsearchMessageBuilder:
         with open(filepath, 'r') as file:
             self.message['inputs'] = file.read()
 
-    def get_validation_image_url(self, image_url):
-        self.message['image_url'] = image_url
-
     def get_mfix_dat_file(self, filepath):
         with open(filepath, 'r') as file:
             self.message['mfix_dat'] = file.read()
