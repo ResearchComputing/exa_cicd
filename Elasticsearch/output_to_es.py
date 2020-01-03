@@ -84,8 +84,8 @@ class MfixElasticsearchMessageBuilder:
     def build_mfix_elasticsearch_message(self):
         self.get_function_times_from_file(self.mfix_output_filepath)
         self.get_np(self.mfix_output_filepath)
-        self.get_git_info(self.metadata_filepath)
-        self.get_slurm_job_info(self.metadata_filepath)
+        self.get_git_info()
+        self.get_slurm_job_info()
         self.get_singularity_def_file_from_image(self.singularity_image_filepath)
         self.get_inputs_file(self.inputs_filepath)
         self.get_mfix_dat_file(self.mfixdat_filepath)
