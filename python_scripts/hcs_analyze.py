@@ -28,7 +28,7 @@ def get_analytic_soln(npart, e, T0, diap, rho_s, rho_g, mu_g, Ld):
 #           % Required user input
 #---------------------------------------------------------------------------------------------------------
     Np   = npart;
-    # print(e, T0, diap, rho_s, rho_g, mu_g, Ld)
+    print(npart, e, T0, diap, rho_s, rho_g, mu_g, Ld)
     # e    = 0.8; #restitution coefficient
     # T0   = 1000.0; #granular energy (cm^2/s^2)
     # diap = 0.01; #particle diameter (cm)
