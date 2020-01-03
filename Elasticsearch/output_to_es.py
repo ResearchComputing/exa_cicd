@@ -6,6 +6,7 @@ import argparse
 import datetime
 import subprocess
 import sys
+import os
 
 from elasticsearch_utils import get_elasticsearch_client
 
