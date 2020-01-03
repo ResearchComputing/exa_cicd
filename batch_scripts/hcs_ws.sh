@@ -85,6 +85,7 @@ for dir in {np_0001,np_0008,np_0027}; do
     cd $WD/$dir
     rm -rf plt*.old*
     rm -rf adapt*.old*
+    rm -f analytic_soln.dat vel_computed.dat adapt.png haff.png
 
     # Get processor count without leading zeros
     num_process=${dir:(-4)}
@@ -94,7 +95,7 @@ for dir in {np_0001,np_0008,np_0027}; do
     export LD=$(($num_process*64))
 
     # Each lin in particle_input.dat represents a particle (minus header)
-    export NUM_PARTICLES=$(($(wc -l $dir/particle_input.dat | cut -c1-5)-1))
+    export NUM_PARTICLES=$(($(wc -l particle_input.dat | cut -c1-5)-1))
 
     python3 $HCS_ANALYZE -pfp "plt*" -np $NUM_PARTICLES -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld $LD --outfile haff.png
     python3 $HCS_ANALYZE -pfp "adapt*" -np $NUM_PARTICLES -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld $LD --outfile adapt.png
