@@ -153,7 +153,7 @@ class MfixElasticsearchMessageBuilder:
     def get_git_info(self):
         self.message['git_commit_time'] = subprocess.check_output(['singularity', 'exec',
                                         self.singularity_image_filepath, 'bash', '-c',
-                                        "cd /app/mfix; git log -n 1 --pretty=format:'%ai'"]).decode("utf-8")
+                                        "cd /app/mfix; git log -n 1 --pretty=format:'%at'"]).decode("utf-8")
 
         self.message['git_commit_hash'] = subprocess.check_output(['singularity', 'exec',
                                         self.singularity_image_filepath, 'bash', '-c',
