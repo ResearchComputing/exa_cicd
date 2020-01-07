@@ -183,6 +183,8 @@ builder = MfixElasticsearchMessageBuilder(args.es_index, args.mfix_output_data,
                             args.validation_image_url)
 builder.build_mfix_elasticsearch_message()
 
+print(vars(builder))
+
 ## Index results into elasticsearch
 builder.index_mfix_message()
 

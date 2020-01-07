@@ -1,0 +1,30 @@
+## Singularity doesn't upload, need to remote login first
+aaron@aaron-pc:~/exa_cicd/def_files$ singularity -v push -U openmpi_2.1.6.sif library://aarontholt/default/openmpi
+WARNING: Skipping container verifying
+FATAL:   Unable to push image to library: request did not succeed: Unauthorized (401 Unauthorized)
+aaron@aaron-pc:~/exa_cicd/def_files$ singularity remote login
+INFO:    Authenticating with default remote.
+Generate an API Key at https://cloud.sylabs.io/auth/tokens, and paste here:
+API Key:
+INFO:    API Key Verified!
+aaron@aaron-pc:~/exa_cicd/def_files$ singularity -v push -U openmpi_2.1.6.sif library://aarontholt/default/openmpi:2.1.6
+WARNING: Skipping container verifying
+ 251.16 MiB / 251.16 MiB [=======================================================================] 100.00% 31.17 MiB/s 8s
+
+
+#singularity remote login command
+Log into a singularity remote endpoint using an authentication token
+
+Synopsis
+The ‘remote login’ command allows you to set an authentication token for a specific endpoint. This command will produce a link directing you to the token service you can use to generate a valid token. If no endpoint is specified, it will try the default remote (SylabsCloud).
+singularity remote login [remote_name] [flags]
+Examples
+$ singularity remote login SylabsCloud
+Options
+-h, --help               help for login
+    --tokenfile string   path to the file holding token
+
+
+## Annoying openmpi warnings
+[shas0136:82097] mca_base_component_repository_open: unable to open mca_sec_munge: libmunge.so.2: cannot open shared object file: No such file or directory (ignored) ...
+put 'mca_base_component_show_load_errors=0' in the system openmpi install's 'etc/openmpi-mca-params.conf'
