@@ -76,11 +76,14 @@ for dir in {np_0001,np_0008,np_0027}; do
 
 done
 
-
+#http://mfix-nginx.rc.int.colorado.edu:80{{rawValue}}
+#/projects/jenkins/images/mfix-hcs-5k/np_0001/phase2-develop_6a57e5f_2019-12-04_13:21:27.png
 
 ## Plot results
 export HCS_ANALYZE=/projects/holtat/CICD/exa_cicd/python_scripts/hcs_analyze.py
 for dir in {np_0001,np_0008,np_0027}; do
+
+    export PLOTFILE="/projects/jenkins/images/${ES_INDEX}/np_${np}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
 
     cd $WD/$dir
     rm -rf plt*.old*
@@ -96,8 +99,8 @@ for dir in {np_0001,np_0008,np_0027}; do
     # Each lin in particle_input.dat represents a particle (minus header)
     export NUM_PARTICLES=$(($(wc -l particle_input.dat | cut -c1-5)-1))
 
-    python3 $HCS_ANALYZE -pfp "plt*" -np $NUM_PARTICLES -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld $LD --outfile haff.png
-    python3 $HCS_ANALYZE -pfp "adapt*" -np $NUM_PARTICLES -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld $LD --outfile haff_adapt.png
+    python3 $HCS_ANALYZE -pfp "plt*" -np $NUM_PARTICLES -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld $LD --outfile "${PLOTFILE}.png"
+    python3 $HCS_ANALYZE -pfp "adapt*" -np $NUM_PARTICLES -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld $LD --outfile "${PLOTFILE}_adapt.png"
 
 
 done
