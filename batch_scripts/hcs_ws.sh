@@ -61,7 +61,7 @@ git pull
 ## Index results in ES
 for dir in {np_0001,np_0008,np_0027}; do
 
-    export URL_BASE="/images/${ES_INDEX}/np_${np}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
+    export URL_BASE="/images/${ES_INDEX}/${dir}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
 
     np=${dir:(-4)}
     python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
@@ -83,7 +83,7 @@ done
 export HCS_ANALYZE=/projects/holtat/CICD/exa_cicd/python_scripts/hcs_analyze.py
 for dir in {np_0001,np_0008,np_0027}; do
 
-    export PLOTFILE="/projects/jenkins/images/${ES_INDEX}/np_${np}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
+    export PLOTFILE="/projects/jenkins/images/${ES_INDEX}/${dir}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
 
     cd $WD/$dir
     rm -rf plt*.old*
