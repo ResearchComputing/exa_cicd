@@ -84,6 +84,7 @@ export HCS_ANALYZE=/projects/holtat/CICD/exa_cicd/python_scripts/hcs_analyze.py
 for dir in {np_0001,np_0008,np_0027}; do
 
     export PLOTFILE="/projects/jenkins/images/${ES_INDEX}/${dir}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
+    echo "Plot location: ${PLOTFILE}"
 
     cd $WD/$dir
     rm -rf plt*.old*
