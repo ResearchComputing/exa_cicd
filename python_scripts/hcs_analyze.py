@@ -250,7 +250,6 @@ font={'family':'Helvetica', 'size':'16'}
 mpl.rc('font',**font)
 mpl.rc('xtick',labelsize=12)
 mpl.rc('ytick',labelsize=12)
-plot_data=True
 
 # Remove old files if they exist
 for fname in ['vel_computed.dat', 'analytic_soln.dat', args.outfile]:
@@ -270,17 +269,16 @@ print("ARGS = ", args.npart, args.e, args.T0, args.diap, args.rho_s,
 
 (c_time,c_temp) = get_computed_soln(part_fn_list,tscale,v2scale)
 
-if(plot_data):
-    plt.yscale('log')
-    plt.xscale('log')
-    plt.plot(a_time,a_temp,linewidth=2,label="Analytical");
-    plt.plot(c_time,c_temp,linewidth=2,label="Computed",marker='o',markersize='3');
-    plt.xlabel("Non-dimensional time $(t T_0^{1/2}/d_p)$")
-    plt.ylabel("Non-dimensional temperature $(T/T_0)$")
-    plt.legend(loc="best")
-    plt.tight_layout()
-    plt.savefig(args.outfile)
-    # plt.show()
+plt.yscale('log')
+plt.xscale('log')
+plt.plot(a_time,a_temp,linewidth=2,label="Analytical");
+plt.plot(c_time,c_temp,linewidth=2,label="Computed",marker='o',markersize='3');
+plt.xlabel("Non-dimensional time $(t T_0^{1/2}/d_p)$")
+plt.ylabel("Non-dimensional temperature $(T/T_0)$")
+plt.legend(loc="best")
+plt.tight_layout()
+plt.savefig(args.outfile)
+# plt.show()
 
 
 #plt00350
