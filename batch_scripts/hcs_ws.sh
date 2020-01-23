@@ -94,8 +94,9 @@ for dir in {np_0001,np_0008,np_0027}; do
     num_process=${dir:(-4)}
     num_process=$(echo $num_process | sed 's/^0*//')
 
-    # ld is ratio of box size to particle size
-    export LD=$(($num_process*64))
+    # ld is ratio of box size to particle size, box ratio increases by cube root of processor count
+    export box_ratio=`perl -E "say ${num_process}**(1/3)"`
+    export LD=$(($box_ratio*64))
 
     # Each lin in particle_input.dat represents a particle (minus header)
     export NUM_PARTICLES=$(($(wc -l particle_input.dat | cut -c1-5)-1))
