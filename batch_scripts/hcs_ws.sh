@@ -43,6 +43,10 @@ for dir in {np_0001,np_0008,np_0027}; do
     # Run default then timestepping
     $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs >> ${RUN_DATE}_${COMMIT_HASH}_${dir}"
     $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.use_tstepadapt=1 amr.plot_file=adapt >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_adapt"
+    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.sorting_type=1 amr.plot_file=morton >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_morton"
+    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.sorting_type=1 mfix.use_tstepadapt=1 amr.plot_file=combined >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_combined"
+
+    #
 
 ##mfix.use_tstepadapt=0
     #Consider mpirun -np $np --map-by node ...
@@ -74,6 +78,16 @@ for dir in {np_0001,np_0008,np_0027}; do
       --validation-image-url "${URL_BASE}_adapt.png" \
       --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_adapt" --type adapt
 
+    python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
+      --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
+      --validation-image-url "${URL_BASE}_morton.png" \
+      --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_morton" --type morton
+
+    python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
+      --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
+      --validation-image-url "${URL_BASE}_combined.png" \
+      --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_combined" --type combined
+
 done
 
 #http://mfix-nginx.rc.int.colorado.edu:80{{rawValue}}
@@ -103,6 +117,8 @@ for dir in {np_0001,np_0008,np_0027}; do
 
     python3 $HCS_ANALYZE -pfp "plt*" -np $NUM_PARTICLES -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld $LD --outfile "${PLOTFILE}.png"
     python3 $HCS_ANALYZE -pfp "adapt*" -np $NUM_PARTICLES -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld $LD --outfile "${PLOTFILE}_adapt.png"
+    python3 $HCS_ANALYZE -pfp "morton*" -np $NUM_PARTICLES -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld $LD --outfile "${PLOTFILE}_morton.png"
+    python3 $HCS_ANALYZE -pfp "combined*" -np $NUM_PARTICLES -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld $LD --outfile "${PLOTFILE}_combined.png"
 
 
 done

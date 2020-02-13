@@ -61,17 +61,21 @@ class MfixElasticsearchMessageBuilder:
         self.singularity_image_filepath = singularity_image_filepath
         self.validation_image_url = validation_image_url
         self.function_list = ["calc_particle_collisions()",
-            "MLNodeLaplacian::Fsmooth()",
-            "FillBoundary_nowait()",
-            "NeighborParticleContainer::buildNeighborList",
-            "mfix_dem::finderror()",
-            "NeighborParticleContainer::getRcvCountsMPI",
-            "FillBoundary_finish()",
             "des_time_loop()",
+            "FabArray::ParallelCopy()",
+            "FillBoundary_finish()",
+            "FillBoundary_nowait()",
             "mfix_dem::EvolveParticles()",
+            "mfix_dem::EvolveParticles_tstepadapt()",
+            "mfix_dem::finderror()",
+            "MLEBABecLap::Fsmooth()",
+            "MLNodeLaplacian::Fsmooth()",
+            "MLNodeLaplacian::prepareForSolve()",
+            "MLNodeLaplacian::restriction()",
+            "NeighborParticleContainer::buildNeighborList",
+            "NeighborParticleContainer::getRcvCountsMPI",
             "NeighborParticleContainer::fillNeighborsMPI",
-            "ParticleContainer::RedistributeMPI()",
-            "mfix_dem::EvolveParticles_tstepadapt()",]
+            "ParticleContainer::RedistributeMPI()"]
         self.message = {}
         self.elasticsearch_client = get_elasticsearch_client()
 
@@ -117,7 +121,13 @@ class MfixElasticsearchMessageBuilder:
 
         if 'adapt' in filename:
             self.message['type'] = 'adapt'
-            filename = filename[0:-6]
+            filename = filename[0:-(len(self.message['type'])+1)]
+        elif 'morton' in filename:
+            self.message['type'] = 'morton'
+            filename = filename[0:-(len(self.message['type'])+1)]
+        elif 'combined' in filename:
+            self.message['type'] = 'combined'
+            filename = filename[0:-(len(self.message['type'])+1)]
         else:
             self.message['type'] = 'normal'
 
