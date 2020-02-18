@@ -39,9 +39,6 @@ def get_input_filepaths(work_dir, np, type):
     mfixdat_filepath = output_dir + 'mfix.dat'
     inputs_filepath = output_dir + 'inputs'
 
-    if type:
-        inputs_filepath += '_' + type
-
     return mfixdat_filepath, inputs_filepath
 
 
