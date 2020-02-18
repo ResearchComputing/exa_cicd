@@ -23,7 +23,7 @@ parser.add_argument('--validation-image-url', dest='validation_image_url', type=
 args = parser.parse_args()
 
 
-def get_input_filepaths(work_dir, np, type):
+def get_input_filepaths(work_dir, np):
     '''Inputs:
     work_dir: String base output directory filepath (ex: /scratch/summit/$USER/hcs_200k_ws)
     np: 4 digit string representing number of processes used
@@ -183,7 +183,7 @@ class MfixElasticsearchMessageBuilder:
 # output_filepath, metadata_file = get_output_filenames(args.work_dir,
 #         args.np, args.commit_date, args.git_hash, args.git_branch, args.type)
 
-mfixdat_filepath, inputs_filepath = get_input_filepaths(args.work_dir, args.np, args.type)
+mfixdat_filepath, inputs_filepath = get_input_filepaths(args.work_dir, args.np)
 
 builder = MfixElasticsearchMessageBuilder(args.es_index, args.mfix_output_data,
                             mfixdat_filepath, inputs_filepath, args.sing_image_path,
