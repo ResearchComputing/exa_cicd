@@ -200,10 +200,10 @@ builder = MfixElasticsearchMessageBuilder(args.es_index, args.mfix_output_data,
                         mfixdat_filepath, inputs_filepath, args.sing_image_path,
                         validation_image_url=args.validation_image_url,
                         gas_fraction_image_url=args.gas_fraction_image_url,
-                        velocity_image_url=args.velocity)
+                        velocity_image_url=args.velocity_image_url)
 builder.build_mfix_elasticsearch_message()
 print(vars(builder))
-builder.index_mfix_message()
+# builder.index_mfix_message()
 
 
 ## Index results into elasticsearch
