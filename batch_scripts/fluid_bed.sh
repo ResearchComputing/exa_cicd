@@ -37,24 +37,23 @@ for host in $(scontrol show hostnames); do
   hostnames+=( $host )
 done;
 
-for dir in {np_0024}; do
+## Run MFiX Exa
+export dir=np_0024
+# Make directory if needed
+mkdir -p $WD/$dir
+cd $WD/$dir
+pwd
+# Get np from dir
+np=${dir:(-4)}
+np=$((10#$np))
 
-    # Make directory if needed
-    mkdir -p $WD/$dir
-    cd $WD/$dir
-    pwd
-    # Get np from dir
-    np=${dir:(-4)}
-    np=$((10#$np))
+# Run default then timestepping
+$MPIRUN --host ${hostnames[0]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs >> ${RUN_DATE}_${COMMIT_HASH}_${dir}" &
+$MPIRUN --host ${hostnames[1]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.use_tstepadapt=1 amr.plot_file=adapt >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_adapt" &
+$MPIRUN --host ${hostnames[2]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.sorting_type=1 amr.plot_file=morton >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_morton" &
+$MPIRUN --host ${hostnames[3]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.sorting_type=1 mfix.use_tstepadapt=1 amr.plot_file=combined >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_combined" &
+wait
 
-    # Run default then timestepping
-    $MPIRUN --host ${hostnames[0]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs >> ${RUN_DATE}_${COMMIT_HASH}_${dir}"
-    $MPIRUN --host ${hostnames[1]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.use_tstepadapt=1 amr.plot_file=adapt >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_adapt"
-    $MPIRUN --host ${hostnames[2]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.sorting_type=1 amr.plot_file=morton >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_morton"
-    $MPIRUN --host ${hostnames[3]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.sorting_type=1 mfix.use_tstepadapt=1 amr.plot_file=combined >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_combined"
-    wait
-
-done
 
 # Use elasticsearch environment
 ml python/3.5.1 intel/17.4 git
@@ -65,64 +64,60 @@ cd /projects/holtat/CICD/exa_cicd/Elasticsearch
 git pull
 
 ## Index results in ES
-for dir in {np_0024}; do
+export dir=np_0024
 
-    export GAS_FRACTION="/images/${ES_INDEX}/${dir}/gafraction_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
-    export VELOCITY="/images/${ES_INDEX}/${dir}/velocity_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
+export GAS_FRACTION="/images/${ES_INDEX}/${dir}/gafraction_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
+export VELOCITY="/images/${ES_INDEX}/${dir}/velocity_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
 
-    np=${dir:(-4)}
-    python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
-      --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-      --gas-fraction-image-url "${GAS_FRACTION}.png" \
-      --velocity-image-url "${VELOCITY}.png" \
-      --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}"
+np=${dir:(-4)}
+python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
+  --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
+  --gas-fraction-image-url "${GAS_FRACTION}.png" \
+  --velocity-image-url "${VELOCITY}.png" \
+  --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}"
 
-    python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
-      --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-      --gas-fraction-image-url "${GAS_FRACTION}_adapt.png" \
-      --velocity-image-url "${VELOCITY}_adapt.png" \
-      --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_adapt" --type adapt
+python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
+  --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
+  --gas-fraction-image-url "${GAS_FRACTION}_adapt.png" \
+  --velocity-image-url "${VELOCITY}_adapt.png" \
+  --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_adapt" --type adapt
 
-    python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
-      --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-      --gas-fraction-image-url "${GAS_FRACTION}_morton.png" \
-      --velocity-image-url "${VELOCITY}_morton.png" \
-      --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_morton" --type morton
+python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
+  --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
+  --gas-fraction-image-url "${GAS_FRACTION}_morton.png" \
+  --velocity-image-url "${VELOCITY}_morton.png" \
+  --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_morton" --type morton
 
-    python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
-      --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-      --gas-fraction-image-url "${GAS_FRACTION}_combined.png" \
-      --velocity-image-url "${VELOCITY}_combined.png" \
-      --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_combined" --type combined
-
-done
+python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
+  --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
+  --gas-fraction-image-url "${GAS_FRACTION}_combined.png" \
+  --velocity-image-url "${VELOCITY}_combined.png" \
+  --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_combined" --type combined
 
 
 ## Plot results
 export VELOCITY_COMPARE=/projects/holtat/CICD/exa_cicd/python_scripts/fluid_bed_velocity_compare.py
 export GAS_COMPARE=/projects/holtat/CICD/exa_cicd/python_scripts/fluid_bed_gas_fraction_compare.py
 
-for dir in {np_0024}; do
+export dir=np_0024
 
-    export BASE="/projects/jenkins/images"
-    export GAS_FRACTION="${BASE}/images/${ES_INDEX}/${dir}/gafraction_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
-    export VELOCITY="${BASE}/images/${ES_INDEX}/${dir}/velocity_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
-    echo "Plot locations: ${GAS_FRACTION} ${VELOCITY}"
+export BASE="/projects/jenkins/images"
+export GAS_FRACTION="${BASE}/images/${ES_INDEX}/${dir}/gafraction_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
+export VELOCITY="${BASE}/images/${ES_INDEX}/${dir}/velocity_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
+echo "Plot locations: ${GAS_FRACTION} ${VELOCITY}"
 
-    cd $WD/$dir
-    rm -rf plt*.old*
-    rm -rf adapt*.old*
-    rm -rf morton*.old*
-    rm -rf combined*.old*
+cd $WD/$dir
+rm -rf plt*.old*
+rm -rf adapt*.old*
+rm -rf morton*.old*
+rm -rf combined*.old*
 
-    python3 $VELOCITY_COMPARE -pfp "plt*" --outfile "${VELOCITY}.png"
-    python3 $VELOCITY_COMPARE -pfp "adapt*" --outfile "${VELOCITY}_adapt.png"
-    python3 $VELOCITY_COMPARE -pfp "morton*" --outfile "${VELOCITY}_morton.png"
-    python3 $VELOCITY_COMPARE -pfp "combined*" --outfile "${VELOCITY}_combined.png"
+python3 $VELOCITY_COMPARE -pfp "plt*" --outfile "${VELOCITY}.png"
+python3 $VELOCITY_COMPARE -pfp "adapt*" --outfile "${VELOCITY}_adapt.png"
+python3 $VELOCITY_COMPARE -pfp "morton*" --outfile "${VELOCITY}_morton.png"
+python3 $VELOCITY_COMPARE -pfp "combined*" --outfile "${VELOCITY}_combined.png"
 
-    python3 $GAS_COMPARE -pfp "plt*" --outfile "${GAS_FRACTION}.png"
-    python3 $GAS_COMPARE -pfp "adapt*" --outfile "${GAS_FRACTION}_adapt.png"
-    python3 $GAS_COMPARE -pfp "morton*" --outfile "${GAS_FRACTION}_morton.png"
-    python3 $GAS_COMPARE -pfp "combined*" --outfile "${GAS_FRACTION}_combined.png"
-
-done
+python3 $GAS_COMPARE -pfp "plt*" --outfile "${GAS_FRACTION}.png"
+python3 $GAS_COMPARE -pfp "adapt*" --outfile "${GAS_FRACTION}_adapt.png"
+python3 $GAS_COMPARE -pfp "morton*" --outfile "${GAS_FRACTION}_morton.png"
+python3 $GAS_COMPARE -pfp "combined*" --outfile "${GAS_FRACTION}_combined.png"
