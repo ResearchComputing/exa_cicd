@@ -1,22 +1,39 @@
 # Original code by: Hari Sitaraman
 # Modified by Aaron Holt
+# MFiX-Exa velocity comparison for the 2.5cm Muller fluid bed
 ## Experimental data file: exptdata_epg.dat
+## python3 fluid_bed_gas_fraction_compare.py -pfp "flubed*" --outfile "fbed_vel.png"
 
-import numpy as np
+import argparse
+import os
+import glob
 import yt
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
-from sys import argv
 import matplotlib as mpl
 import matplotlib.colors as colors
-import glob
+
+from sys import argv
+from yt.funcs import mylog
+mylog.setLevel(40) # This sets the log level to "ERROR"
 mpl.use("agg")
 
 
-fn_pattern = argv[1]
-print(glob.glob(fn_pattern))
-fn_list = sorted(glob.glob(fn_pattern), key=lambda f: int(f.split("flubed")[1]))
-print(fn_list)
+parser = argparse.ArgumentParser(description='Velocity comparison files for the 2.5cm Muller fluid bed')
+parser.add_argument('-pfp', '--plot-file-pattern', dest='pfp', type=str, required=True, help='Plot file pattern prefix glob (ex: plt*)')
+parser.add_argument('--outfile', dest='outfile', type=str, required=True, help='Path to save velocity plot file')
+args = parser.parse_args()
+
+# Remove old files if they exist
+for fname in ['epg_line.dat', args.outfile]:
+    try:
+        os.remove(fname)
+    except:
+        pass
+
+fn_list = sorted(glob.glob(args.pfp), key=lambda f: int(f.split(args.pfp[0:-1])[1]))
+
 
 xloc=0.0164
 y_min=0.0
@@ -29,7 +46,7 @@ mid=np.array([0.5*(y_min+y_max),0.5*(z_min+z_max)])
 L=np.array([y_max-y_min,z_max-z_min])
 dxmin = ds.index.get_smallest_dx()
 res=np.array([int(L[0]/dxmin),int(L[1]/dxmin)])
-print(res)
+# print(res)
 
 fields_load=["ep_g"]
 epgavg=np.zeros((res[1],res[0]))
@@ -79,7 +96,7 @@ plt.ylabel("Gas fraction")
 plt.legend()
 plt.tight_layout()
 #plt.show()
-plt.savefig("muller_flubedgasfrac_1.6cm.png")
+plt.savefig(args.outfile)
 
 outfile=open("epg_line.dat","w")
 for i in range(len(lineavg)):
