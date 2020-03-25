@@ -1,4 +1,4 @@
---velocityfile#!/bin/bash
+#!/bin/bash
 #SBATCH --nodes 4
 #SBATCH --exclusive
 #SBATCH --account ucb1_summit3
@@ -99,7 +99,9 @@ done
 
 
 ## Plot results
-export FLUID_BED_ANALYZE=/projects/holtat/CICD/exa_cicd/python_scripts/fluid_bed_analyze.py
+export VELOCITY_COMPARE=/projects/holtat/CICD/exa_cicd/python_scripts/fluid_bed_velocity_compare.py
+export GAS_COMPARE=/projects/holtat/CICD/exa_cicd/python_scripts/fluid_bed_gas_fraction_compare.py
+
 for dir in {np_0024}; do
 
     export BASE="/projects/jenkins/images"
@@ -113,9 +115,14 @@ for dir in {np_0024}; do
     rm -rf morton*.old*
     rm -rf combined*.old*
 
-    python3 $FLUID_BED_ANALYZE -pfp "plt*" --gasfile "${GAS_FRACTION}.png" --velocityfile "${VELOCITY}.png"
-    python3 $FLUID_BED_ANALYZE -pfp "adapt*" --gasfile "${GAS_FRACTION}_adapt.png" --velocityfile "${VELOCITY}_adapt.png"
-    python3 $FLUID_BED_ANALYZE -pfp "morton*" --gasfile "${GAS_FRACTION}_morton.png" --velocityfile "${VELOCITY}_morton.png"
-    python3 $FLUID_BED_ANALYZE -pfp "combined*" --gasfile "${GAS_FRACTION}_combined.png" --velocityfile "${VELOCITY}_combined.png"
+    python3 $VELOCITY_COMPARE -pfp "plt*" --outfile "${VELOCITY}.png"
+    python3 $VELOCITY_COMPARE -pfp "adapt*" --outfile "${VELOCITY}_adapt.png"
+    python3 $VELOCITY_COMPARE -pfp "morton*" --outfile "${VELOCITY}_morton.png"
+    python3 $VELOCITY_COMPARE -pfp "combined*" --outfile "${VELOCITY}_combined.png"
+
+    python3 $GAS_COMPARE -pfp "plt*" --outfile "${GAS_FRACTION}.png"
+    python3 $GAS_COMPARE -pfp "adapt*" --outfile "${GAS_FRACTION}_adapt.png"
+    python3 $GAS_COMPARE -pfp "morton*" --outfile "${GAS_FRACTION}_morton.png"
+    python3 $GAS_COMPARE -pfp "combined*" --outfile "${GAS_FRACTION}_combined.png"
 
 done
