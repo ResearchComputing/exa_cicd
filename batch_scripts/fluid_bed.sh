@@ -1,4 +1,4 @@
-#!/bin/bash
+--velocityfile#!/bin/bash
 #SBATCH --nodes 4
 #SBATCH --exclusive
 #SBATCH --account ucb1_summit3
@@ -53,7 +53,7 @@ for dir in {np_0024}; do
     $MPIRUN --host ${hostnames[2]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.sorting_type=1 amr.plot_file=morton >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_morton"
     $MPIRUN --host ${hostnames[3]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.sorting_type=1 mfix.use_tstepadapt=1 amr.plot_file=combined >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_combined"
     wait
-    
+
 done
 
 # Use elasticsearch environment
@@ -65,63 +65,57 @@ cd /projects/holtat/CICD/exa_cicd/Elasticsearch
 git pull
 
 ## Index results in ES
-for dir in {np_0001,np_0008,np_0027}; do
+for dir in {np_0024}; do
 
-    export URL_BASE="/images/${ES_INDEX}/${dir}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
+    export GAS_FRACTION="/images/${ES_INDEX}/${dir}/gafraction_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
+    export VELOCITY="/images/${ES_INDEX}/${dir}/velocity_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
 
     np=${dir:(-4)}
     python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
       --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-      --validation-image-url "${URL_BASE}.png" \
+      --gas-fraction-image-url "${GAS_FRACTION}.png" \
+      --velocity-image-url "${VELOCITY}.png" \
       --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}"
 
     python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
       --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-      --validation-image-url "${URL_BASE}_adapt.png" \
+      --gas-fraction-image-url "${GAS_FRACTION}_adapt.png" \
+      --velocity-image-url "${VELOCITY}_adapt.png" \
       --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_adapt" --type adapt
 
     python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
       --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-      --validation-image-url "${URL_BASE}_morton.png" \
+      --gas-fraction-image-url "${GAS_FRACTION}_morton.png" \
+      --velocity-image-url "${VELOCITY}_morton.png" \
       --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_morton" --type morton
 
     python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
       --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-      --validation-image-url "${URL_BASE}_combined.png" \
+      --gas-fraction-image-url "${GAS_FRACTION}_combined.png" \
+      --velocity-image-url "${VELOCITY}_combined.png" \
       --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_combined" --type combined
 
 done
 
-#http://mfix-nginx.rc.int.colorado.edu:80{{rawValue}}
-#/projects/jenkins/images/mfix-hcs-5k/np_0001/phase2-develop_6a57e5f_2019-12-04_13:21:27.png
 
 ## Plot results
-export HCS_ANALYZE=/projects/holtat/CICD/exa_cicd/python_scripts/hcs_analyze.py
-for dir in {np_0001,np_0008,np_0027}; do
+export FLUID_BED_ANALYZE=/projects/holtat/CICD/exa_cicd/python_scripts/fluid_bed_analyze.py
+for dir in {np_0024}; do
 
-    export PLOTFILE="/projects/jenkins/images/${ES_INDEX}/${dir}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
-    echo "Plot location: ${PLOTFILE}"
+    export BASE="/projects/jenkins/images"
+    export GAS_FRACTION="${BASE}/images/${ES_INDEX}/${dir}/gafraction_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
+    export VELOCITY="${BASE}/images/${ES_INDEX}/${dir}/velocity_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
+    echo "Plot locations: ${GAS_FRACTION} ${VELOCITY}"
 
     cd $WD/$dir
     rm -rf plt*.old*
     rm -rf adapt*.old*
+    rm -rf morton*.old*
+    rm -rf combined*.old*
 
-    # Get processor count without leading zeros
-    num_process=${dir:(-4)}
-    num_process=$(echo $num_process | sed 's/^0*//')
-
-    # ld is ratio of box size to particle size, box ratio increases by cube root of processor count
-    export box_ratio=`perl -E "say ${num_process}**(1/3)"`
-    export LD=$(($box_ratio*64))
-
-    # Each lin in particle_input.dat represents a particle (minus header)
-    export NUM_PARTICLES=$(($(wc -l particle_input.dat | awk '{print $1;}')-1))
-
-    python3 $HCS_ANALYZE -pfp "plt*" -np $NUM_PARTICLES -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld $LD --outfile "${PLOTFILE}.png"
-    python3 $HCS_ANALYZE -pfp "adapt*" -np $NUM_PARTICLES -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld $LD --outfile "${PLOTFILE}_adapt.png"
-    python3 $HCS_ANALYZE -pfp "morton*" -np $NUM_PARTICLES -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld $LD --outfile "${PLOTFILE}_morton.png"
-    python3 $HCS_ANALYZE -pfp "combined*" -np $NUM_PARTICLES -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld $LD --outfile "${PLOTFILE}_combined.png"
-
+    python3 $FLUID_BED_ANALYZE -pfp "plt*" --gasfile "${GAS_FRACTION}.png" --velocityfile "${VELOCITY}.png"
+    python3 $FLUID_BED_ANALYZE -pfp "adapt*" --gasfile "${GAS_FRACTION}_adapt.png" --velocityfile "${VELOCITY}_adapt.png"
+    python3 $FLUID_BED_ANALYZE -pfp "morton*" --gasfile "${GAS_FRACTION}_morton.png" --velocityfile "${VELOCITY}_morton.png"
+    python3 $FLUID_BED_ANALYZE -pfp "combined*" --gasfile "${GAS_FRACTION}_combined.png" --velocityfile "${VELOCITY}_combined.png"
 
 done
-#python3 /home/aaron/exa_cicd/python_scripts/hcs_analyze.py -pfp "plt*" -np 5050 -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld 64 --outfile haff.png
