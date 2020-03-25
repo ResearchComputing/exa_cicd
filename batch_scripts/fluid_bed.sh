@@ -47,6 +47,12 @@ pwd
 np=${dir:(-4)}
 np=$((10#$np))
 
+echo "HOSTNAMES"
+echo ${hostnames[0]}
+echo ${hostnames[1]}
+echo ${hostnames[2]}
+echo ${hostnames[3]}
+
 # Run default then timestepping
 $MPIRUN --host ${hostnames[0]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs >> ${RUN_DATE}_${COMMIT_HASH}_${dir}" &
 $MPIRUN --host ${hostnames[1]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.use_tstepadapt=1 amr.plot_file=adapt >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_adapt" &
