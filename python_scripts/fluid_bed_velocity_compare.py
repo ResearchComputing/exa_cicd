@@ -1,8 +1,6 @@
 # Original code by: Hari Sitaraman
-
-import sys
-import argparse
-import glob
+# Modified by Aaron Holt
+## Experimental data file: exptdata_vel.dat
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl

@@ -1,3 +1,7 @@
+# Original code by: Hari Sitaraman
+# Modified by Aaron Holt
+## Experimental data file: exptdata_epg.dat
+
 import numpy as np
 import yt
 import matplotlib.pyplot as plt
@@ -35,7 +39,7 @@ for i, fn in enumerate(fn_list):
     ds = yt.load(fn)
 
     slc = yt.SlicePlot(ds, 'x', fields_load,center=[xloc,mid[0],mid[1]])
-    frb = slc.data_source.to_frb(((L[0],'cm'),(L[1],'cm')), res) 
+    frb = slc.data_source.to_frb(((L[0],'cm'),(L[1],'cm')), res)
     epg=np.array(frb["ep_g"])
     epgavg += epg
 
@@ -55,7 +59,7 @@ for line in infile:
     yexpt=np.append(yexpt,float(line.split()[0]));
     epgexpt=np.append(epgexpt,float(line.split()[1]));
 infile.close()
-    
+
 #matplotlib plotting
 font={'family':'Helvetica', 'size':'15'}
 mpl.rc('font',**font)
