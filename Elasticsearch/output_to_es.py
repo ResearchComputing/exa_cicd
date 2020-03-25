@@ -19,7 +19,9 @@ parser.add_argument('--git-hash', dest='git_hash', type=str, help='Shortened mfi
 parser.add_argument('--git-branch', dest='git_branch', type=str, help='Shortened mfix-exa gitbranch (length 7)')
 parser.add_argument('--sing-image-path', dest='sing_image_path', type=str, help='Singularity image path')
 parser.add_argument('--type', dest='type', type=str, default=None, help='Special argument passed to exa (None, adapt)')
-parser.add_argument('--validation-image-url', dest='validation_image_url', type=str, default=None, help='MFiX validation image url')
+parser.add_argument('--validation-image-url', dest='validation_image_url', type=str, default=None, help='HCS validation image url')
+parser.add_argument('--gas-fraction-image-url', dest='gas_fraction_image_url', type=str, default=None, help='Fluid bed gas-fraction validation image url')
+parser.add_argument('--velocity-image-url', dest='velocity_image_url', type=str, default=None, help='Fluid bed velocity validation image url')
 args = parser.parse_args()
 
 
@@ -50,13 +52,17 @@ class MfixElasticsearchMessageBuilder:
                  mfixdat_filepath,
                  inputs_filepath,
                  singularity_image_filepath,
-                 validation_image_url):
+                 validation_image_url=None,
+                 gas_fraction_image_url=None,
+                 velocity_image_url=None):
         self.es_index = es_index
         self.mfix_output_filepath = mfix_output_filepath
         self.mfixdat_filepath = mfixdat_filepath
         self.inputs_filepath = inputs_filepath
         self.singularity_image_filepath = singularity_image_filepath
         self.validation_image_url = validation_image_url
+        self.gas_fraction_image_url = gas_fraction_image_url
+        self.velocity_image_url = velocity_image_url
         self.function_list = ["calc_particle_collisions()",
             "des_time_loop()",
             "FabArray::ParallelCopy()",
@@ -91,7 +97,12 @@ class MfixElasticsearchMessageBuilder:
         self.get_singularity_def_file_from_image(self.singularity_image_filepath)
         self.get_inputs_file(self.inputs_filepath)
         self.get_mfix_dat_file(self.mfixdat_filepath)
+
+        # HCS validation image
         self.message['image_url'] = self.validation_image_url
+        # Muller fluid bed validation images
+        self.message['gas_fraction_image_url'] = self.gas_fraction_image_url
+        self.message['velocity_image_url'] = self.velocity_image_url
 
     def get_inputs_file(self, filepath):
         with open(filepath, 'r') as file:
@@ -186,14 +197,17 @@ class MfixElasticsearchMessageBuilder:
 mfixdat_filepath, inputs_filepath = get_input_filepaths(args.work_dir, args.np)
 
 builder = MfixElasticsearchMessageBuilder(args.es_index, args.mfix_output_data,
-                            mfixdat_filepath, inputs_filepath, args.sing_image_path,
-                            args.validation_image_url)
+                        mfixdat_filepath, inputs_filepath, args.sing_image_path,
+                        validation_image_url=args.validation_image_url,
+                        gas_fraction_image_url=args.gas_fraction_image_url,
+                        velocity_image_url=args.velocity)
 builder.build_mfix_elasticsearch_message()
-
 print(vars(builder))
+builder.index_mfix_message()
+
 
 ## Index results into elasticsearch
-builder.index_mfix_message()
+# builder.index_mfix_message()
 
 ## Testing items
 # print(args)
