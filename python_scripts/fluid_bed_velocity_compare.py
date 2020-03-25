@@ -1,6 +1,12 @@
 # Original code by: Hari Sitaraman
 # Modified by Aaron Holt
+# MFiX-Exa velocity comparison for the 2.5cm Muller fluid bed
 ## Experimental data file: exptdata_vel.dat
+## python3 fluid_bed_velocity_compary.py -pfp "flubed*" --outfile "fbed_vel.png"
+
+import argparse
+import glob
+import os
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -8,9 +14,6 @@ import matplotlib as mpl
 from scipy.interpolate import NearestNDInterpolator
 mpl.use("agg")
 
-parser = argparse.ArgumentParser(description='Homogeneous cooling system property inputs')
-parser.add_argument('-pfp', '--plot-file-pattern', dest='pfp', type=str, required=True, help='Plot file pattern prefix glob (ex: plt*)')
-parser.add_argument('--outfile', dest='outfile', type=str, required=True, help='Path to save velocity plot file')
 
 class AMReXParticleHeader(object):
     '''
@@ -129,7 +132,17 @@ def read_amrex_binary_particle_file(fn, ptype="particles"):
 
 if __name__ == "__main__":
 
-    fn_pattern = sys.argv[1]
+    parser = argparse.ArgumentParser(description='Velocity comparison files for the 2.5cm Muller fluid bed')
+    parser.add_argument('-pfp', '--plot-file-pattern', dest='pfp', type=str, required=True, help='Plot file pattern prefix glob (ex: plt*)')
+    parser.add_argument('--outfile', dest='outfile', type=str, required=True, help='Path to save velocity plot file')
+    args = parser.parse_args()
+
+    # Remove old files if they exist
+    for fname in ['velprofile.dat', args.outfile]:
+        try:
+            os.remove(fname)
+        except:
+            pass
 
     xloc=0.025 #2.5 cm height
     fac=0.1 #grab particles within 10% of xloc
@@ -142,9 +155,8 @@ if __name__ == "__main__":
     xsample_min=xloc*(1-fac)
     xsample_max=xloc*(1+fac)
 
-    fn_list = sorted(glob.glob(fn_pattern), key=lambda f: int(f.split("flubed")[1]))
+    fn_list = sorted(glob.glob(args.pfp), key=lambda f: int(f.split(args.pfp[0:-1])[1]))
     nfiles=len(fn_list)
-
 
     nsample_pts_y=50
     dy=(ymax-ymin)/(nsample_pts_y-1.0)
@@ -159,7 +171,7 @@ if __name__ == "__main__":
 
 
     for i, fn in enumerate(fn_list):
-        print("reading %s"%(fn))
+        # print("reading %s"%(fn))
         idata, rdata, timestamp = read_amrex_binary_particle_file(fn)
         ppos = rdata[:,0:3]   # assumes 3D
         xvel = rdata[:,3]
@@ -177,7 +189,7 @@ if __name__ == "__main__":
         points=np.zeros((npts,3))
         interp_vel=np.zeros(npts)
 
-        print("npts:",npts)
+        # print("npts:",npts)
 
         for npt in range(npts):
             interp_vel[npt]=xvel[relevant_pids[npt]]
@@ -226,7 +238,7 @@ if __name__ == "__main__":
     plt.legend()
     plt.tight_layout()
     #plt.show()
-    plt.savefig("muller_flubedvel_2.5cm.png")
+    plt.savefig(args.outfile)
 
     outfile=open("velprofile.dat","w")
     for npty in range(nsample_pts_y):
