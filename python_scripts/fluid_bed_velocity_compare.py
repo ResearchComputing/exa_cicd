@@ -1,17 +1,24 @@
-import numpy as np
+# Original code by: Hari Sitaraman
+
 import sys
-from scipy.interpolate import NearestNDInterpolator
+import argparse
+import glob
+import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib as mpl
-import glob
+
+from scipy.interpolate import NearestNDInterpolator
 mpl.use("agg")
 
+parser = argparse.ArgumentParser(description='Homogeneous cooling system property inputs')
+parser.add_argument('-pfp', '--plot-file-pattern', dest='pfp', type=str, required=True, help='Plot file pattern prefix glob (ex: plt*)')
+parser.add_argument('--outfile', dest='outfile', type=str, required=True, help='Path to save velocity plot file')
 
 class AMReXParticleHeader(object):
     '''
 
-    This class is designed to parse and store the information 
-    contained in an AMReX particle header file. 
+    This class is designed to parse and store the information
+    contained in an AMReX particle header file.
 
     Usage:
 
@@ -93,16 +100,16 @@ def read_amrex_binary_particle_file(fn, ptype="particles"):
     base_fn = fn + "/" + ptype
     header = AMReXParticleHeader(base_fn + "/Header")
 
-    
-    idtype = "(%d,)i4" % header.num_int    
+
+    idtype = "(%d,)i4" % header.num_int
     if header.real_type == np.float64:
         fdtype = "(%d,)f8" % header.num_real
     elif header.real_type == np.float32:
         fdtype = "(%d,)f4" % header.num_real
-    
+
     idata = np.empty((header.num_particles, header.num_int ))
     rdata = np.empty((header.num_particles, header.num_real))
-    
+
     ip = 0
     for lvl, level_grids in enumerate(header.grids):
         for (which, count, where) in level_grids:
@@ -116,7 +123,7 @@ def read_amrex_binary_particle_file(fn, ptype="particles"):
                     idata[ip:ip+count] = ints
 
                 floats = np.fromfile(f, dtype = fdtype, count=count)
-                rdata[ip:ip+count] = floats            
+                rdata[ip:ip+count] = floats
             ip += count
 
     return idata, rdata, timestamp
@@ -140,19 +147,19 @@ if __name__ == "__main__":
     fn_list = sorted(glob.glob(fn_pattern), key=lambda f: int(f.split("flubed")[1]))
     nfiles=len(fn_list)
 
-    
+
     nsample_pts_y=50
     dy=(ymax-ymin)/(nsample_pts_y-1.0)
-    
+
     nsample_pts_z=10
     dz=(zmax-zmin)/(nsample_pts_z-1.0)
 
     yarray=np.linspace(ymin,ymax,nsample_pts_y)
-    
+
     velarray=np.zeros(nsample_pts_y)
     avgvelarray=np.zeros(nsample_pts_y)
 
-    
+
     for i, fn in enumerate(fn_list):
         print("reading %s"%(fn))
         idata, rdata, timestamp = read_amrex_binary_particle_file(fn)
