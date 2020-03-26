@@ -62,8 +62,8 @@ wait
 
 
 # Use elasticsearch environment
-ml python/3.5.1 intel/17.4 git
-source /projects/holtat/CICD/elastic_env/bin/activate
+ml python/3.5.1 git
+source /projects/holtat/CICD/cicd_env_gcc/bin/activate
 
 # Update repo on projects if needed
 cd /projects/holtat/CICD/exa_cicd/Elasticsearch
@@ -108,8 +108,8 @@ export GAS_COMPARE=/projects/holtat/CICD/exa_cicd/python_scripts/fluid_bed_gas_f
 export dir=np_0024
 
 export BASE="/projects/jenkins/images"
-export GAS_FRACTION="${BASE}/images/${ES_INDEX}/${dir}/gafraction_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
-export VELOCITY="${BASE}/images/${ES_INDEX}/${dir}/velocity_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
+export GAS_FRACTION="${BASE}/${ES_INDEX}/${dir}/gafraction_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
+export VELOCITY="${BASE}/${ES_INDEX}/${dir}/velocity_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
 echo "Plot locations: ${GAS_FRACTION} ${VELOCITY}"
 
 cd $WD/$dir
