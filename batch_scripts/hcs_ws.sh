@@ -55,8 +55,8 @@ done
 
 
 # Use elasticsearch environment
-ml python/3.6.5 git
-source /projects/holtat/CICD/cicd_py36_env/bin/activate
+ml python_3.8.2 git
+source /projects/holtat/CICD/cicd_py38_env/bin/activate
 
 # Update repo on projects if needed
 cd /projects/holtat/CICD/exa_cicd/Elasticsearch
