@@ -54,7 +54,7 @@ echo ${hostnames[2]}
 echo ${hostnames[3]}
 
 # Run default then timestepping
-$MPIRUN --host ${hostnames[0]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs >> ${RUN_DATE}_${COMMIT_HASH}_${dir}" &
+$MPIRUN --host ${hostnames[0]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs amr.plot_file=flubed >> ${RUN_DATE}_${COMMIT_HASH}_${dir}" &
 $MPIRUN --host ${hostnames[1]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.use_tstepadapt=1 amr.plot_file=adapt >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_adapt" &
 $MPIRUN --host ${hostnames[2]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.sorting_type=1 amr.plot_file=morton >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_morton" &
 $MPIRUN --host ${hostnames[3]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.sorting_type=1 mfix.use_tstepadapt=1 amr.plot_file=combined >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_combined" &
@@ -113,17 +113,17 @@ export VELOCITY="${BASE}/${ES_INDEX}/${dir}/velocity_${BRANCH}_${COMMIT_HASH}_${
 echo "Plot locations: ${GAS_FRACTION} ${VELOCITY}"
 
 cd $WD/$dir
-rm -rf plt*.old*
+rm -rf flubed*.old*
 rm -rf adapt*.old*
 rm -rf morton*.old*
 rm -rf combined*.old*
 
-python3 $VELOCITY_COMPARE -pfp "plt*" --outfile "${VELOCITY}.png"
+python3 $VELOCITY_COMPARE -pfp "flubed*" --outfile "${VELOCITY}.png"
 python3 $VELOCITY_COMPARE -pfp "adapt*" --outfile "${VELOCITY}_adapt.png"
 python3 $VELOCITY_COMPARE -pfp "morton*" --outfile "${VELOCITY}_morton.png"
 python3 $VELOCITY_COMPARE -pfp "combined*" --outfile "${VELOCITY}_combined.png"
 
-python3 $GAS_COMPARE -pfp "plt*" --outfile "${GAS_FRACTION}.png"
+python3 $GAS_COMPARE -pfp "flubed*" --outfile "${GAS_FRACTION}.png"
 python3 $GAS_COMPARE -pfp "adapt*" --outfile "${GAS_FRACTION}_adapt.png"
 python3 $GAS_COMPARE -pfp "morton*" --outfile "${GAS_FRACTION}_morton.png"
 python3 $GAS_COMPARE -pfp "combined*" --outfile "${GAS_FRACTION}_combined.png"
