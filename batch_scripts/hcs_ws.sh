@@ -103,6 +103,8 @@ for dir in {np_0001,np_0008,np_0027}; do
     cd $WD/$dir
     rm -rf plt*.old*
     rm -rf adapt*.old*
+    rm -rf morton*.old*
+    rm -rf combined*.old*
 
     # Get processor count without leading zeros
     num_process=${dir:(-4)}
