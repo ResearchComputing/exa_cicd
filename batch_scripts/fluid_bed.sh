@@ -42,6 +42,11 @@ export dir=np_0024
 # Make directory if needed
 mkdir -p $WD/$dir
 cd $WD/$dir
+rm -rf flubed*
+rm -rf adapt*
+rm -rf morton*
+rm -rf combined*
+
 pwd
 # Get np from dir
 np=${dir:(-4)}
@@ -111,12 +116,6 @@ export BASE="/projects/jenkins/images"
 export GAS_FRACTION="${BASE}/${ES_INDEX}/${dir}/gafraction_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
 export VELOCITY="${BASE}/${ES_INDEX}/${dir}/velocity_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
 echo "Plot locations: ${GAS_FRACTION} ${VELOCITY}"
-
-cd $WD/$dir
-rm -rf flubed*.old*
-rm -rf adapt*.old*
-rm -rf morton*.old*
-rm -rf combined*.old*
 
 python3 $VELOCITY_COMPARE -pfp "flubed*" --outfile "${VELOCITY}.png"
 python3 $VELOCITY_COMPARE -pfp "adapt*" --outfile "${VELOCITY}_adapt.png"

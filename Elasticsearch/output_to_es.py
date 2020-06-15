@@ -109,8 +109,11 @@ class MfixElasticsearchMessageBuilder:
             self.message['inputs'] = file.read()
 
     def get_mfix_dat_file(self, filepath):
-        with open(filepath, 'r') as file:
-            self.message['mfix_dat'] = file.read()
+        try:
+            with open(filepath, 'r') as file:
+                self.message['mfix_dat'] = file.read()
+        except FileNotFoundError:
+            self.message['mfix_dat'] = ""
 
     def read_singularity_def_file(self, filepath):
         '''Stores the singularity definition file as a string'''
