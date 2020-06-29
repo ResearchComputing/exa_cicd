@@ -127,3 +127,25 @@ python3 $GAS_COMPARE -pfp "flubed*" --outfile "${GAS_FRACTION}.png"
 python3 $GAS_COMPARE -pfp "adapt*" --outfile "${GAS_FRACTION}_adapt.png"
 python3 $GAS_COMPARE -pfp "morton*" --outfile "${GAS_FRACTION}_morton.png"
 python3 $GAS_COMPARE -pfp "combined*" --outfile "${GAS_FRACTION}_combined.png"
+
+
+
+## Paraview Videos
+ml purge
+deactivate
+
+export PVPYTHON=/projects/jenkins/ParaView-5.8.0-osmesa-MPI-Linux-Python3.7-64bit/bin/pvpython
+export PARAVIEW_ANIMATE=/projects/holtat/CICD/exa_cicd/python_scripts/paraview_animation.py
+
+declare -a options_array=("flubed" "morton" "adapt" "combined")
+
+for option in "${options_array[@]}"
+    do $PVPYTHON paraview_animation.py \
+          --outfile="/projects/jenkins/videos/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}_${option}.avi" \
+          --plot-file-prefix="/scratch/summit/holtat/fluid-bed/np_0024/${option}" \
+          --low-index=0 \
+          --high-index=10000 \
+          --index-step=500 \
+          --camera-focal-point 0.08 0.02 0 \
+          --camera-position 0.08 0.02 0.4
+done
