@@ -18,8 +18,8 @@ pvpython paraview_animation.py \
       --outfile="flubed.avi" \
       --plot-file-prefix="/home/aaron/projects/mfix_work/vis/fluid_bed/adapt" \
       --low-index=0 \
-      --high-index=925 \
-      --index-step=25 \
+      --high-index=10000 \
+      --index-step=500 \
       --camera-focal-point 0.08 0.02 0 \
       --camera-position 0.08 0.02 0.4
 
