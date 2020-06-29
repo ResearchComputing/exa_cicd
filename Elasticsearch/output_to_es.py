@@ -54,7 +54,8 @@ class MfixElasticsearchMessageBuilder:
                  singularity_image_filepath,
                  validation_image_url=None,
                  gas_fraction_image_url=None,
-                 velocity_image_url=None):
+                 velocity_image_url=None,
+                 video_url=None):
         self.es_index = es_index
         self.mfix_output_filepath = mfix_output_filepath
         self.mfixdat_filepath = mfixdat_filepath
@@ -63,6 +64,7 @@ class MfixElasticsearchMessageBuilder:
         self.validation_image_url = validation_image_url
         self.gas_fraction_image_url = gas_fraction_image_url
         self.velocity_image_url = velocity_image_url
+        self.video_url = video_url
         self.function_list = ["calc_particle_collisions()",
             "des_time_loop()",
             "FabArray::ParallelCopy()",
@@ -103,6 +105,9 @@ class MfixElasticsearchMessageBuilder:
         # Muller fluid bed validation images
         self.message['gas_fraction_image_url'] = self.gas_fraction_image_url
         self.message['velocity_image_url'] = self.velocity_image_url
+
+        # Validation video
+        self.message['video_url'] = self.video_url
 
     def get_inputs_file(self, filepath):
         with open(filepath, 'r') as file:

@@ -79,30 +79,35 @@ export dir=np_0024
 
 export GAS_FRACTION="/images/${ES_INDEX}/${dir}/gafraction_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
 export VELOCITY="/images/${ES_INDEX}/${dir}/velocity_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
+export VIDEO_BASE="/videos/${ES_INDEX}/${dir}/velocity_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
 
 np=${dir:(-4)}
 python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
   --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
   --gas-fraction-image-url "${GAS_FRACTION}.png" \
   --velocity-image-url "${VELOCITY}.png" \
+  --video-url "${VIDEO_BASE}.avi" \
   --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}"
 
 python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
   --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
   --gas-fraction-image-url "${GAS_FRACTION}_adapt.png" \
   --velocity-image-url "${VELOCITY}_adapt.png" \
+  --video-url "${VIDEO_BASE}_adapt.avi" \
   --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_adapt" --type adapt
 
 python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
   --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
   --gas-fraction-image-url "${GAS_FRACTION}_morton.png" \
   --velocity-image-url "${VELOCITY}_morton.png" \
+  --video-url "${VIDEO_BASE}_morton.avi" \
   --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_morton" --type morton
 
 python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
   --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
   --gas-fraction-image-url "${GAS_FRACTION}_combined.png" \
   --velocity-image-url "${VELOCITY}_combined.png" \
+  --video-url "${VIDEO_BASE}_combined.avi" \
   --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_combined" --type combined
 
 
@@ -141,7 +146,7 @@ declare -a options_array=("flubed" "morton" "adapt" "combined")
 
 for option in "${options_array[@]}"
     do $PVPYTHON paraview_animation.py \
-          --outfile="/projects/jenkins/videos/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}_${option}.avi" \
+          --outfile="/projects/jenkins/videos/${ES_INDEX}/${dir}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}_${option}.avi" \
           --plot-file-prefix="/scratch/summit/holtat/fluid-bed/np_0024/${option}" \
           --low-index=0 \
           --high-index=10000 \
