@@ -43,6 +43,7 @@ export dir=np_0024
 mkdir -p $WD/$dir
 cd $WD/$dir
 rm -rf flubed*
+rm -rf normal*
 rm -rf adapt*
 rm -rf morton*
 rm -rf combined*
@@ -59,7 +60,7 @@ echo ${hostnames[2]}
 echo ${hostnames[3]}
 
 # Run default then timestepping
-$MPIRUN --host ${hostnames[0]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs amr.plot_file=flubed >> ${RUN_DATE}_${COMMIT_HASH}_${dir}" &
+$MPIRUN --host ${hostnames[0]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs amr.plot_file=normal >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_normal" &
 $MPIRUN --host ${hostnames[1]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.use_tstepadapt=1 amr.plot_file=adapt >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_adapt" &
 $MPIRUN --host ${hostnames[2]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.sorting_type=1 amr.plot_file=morton >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_morton" &
 $MPIRUN --host ${hostnames[3]} -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.sorting_type=1 mfix.use_tstepadapt=1 amr.plot_file=combined >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_combined" &
@@ -75,40 +76,26 @@ cd /projects/holtat/CICD/exa_cicd/Elasticsearch
 git pull
 
 ## Index results in ES
+
 export dir=np_0024
+np=${dir:(-4)}
 
 export GAS_FRACTION="/images/${ES_INDEX}/${dir}/gafraction_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
 export VELOCITY="/images/${ES_INDEX}/${dir}/velocity_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
 export VIDEO_BASE="/videos/${ES_INDEX}/${dir}/velocity_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
 
-np=${dir:(-4)}
-python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
-  --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-  --gas-fraction-image-url "${GAS_FRACTION}.png" \
-  --velocity-image-url "${VELOCITY}.png" \
-  --video-url "${VIDEO_BASE}.avi" \
-  --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}"
+declare -a options_array=("normal" "morton" "adapt" "combined")
 
-python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
-  --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-  --gas-fraction-image-url "${GAS_FRACTION}_adapt.png" \
-  --velocity-image-url "${VELOCITY}_adapt.png" \
-  --video-url "${VIDEO_BASE}_adapt.avi" \
-  --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_adapt" --type adapt
-
-python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
-  --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-  --gas-fraction-image-url "${GAS_FRACTION}_morton.png" \
-  --velocity-image-url "${VELOCITY}_morton.png" \
-  --video-url "${VIDEO_BASE}_morton.avi" \
-  --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_morton" --type morton
-
-python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
-  --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-  --gas-fraction-image-url "${GAS_FRACTION}_combined.png" \
-  --velocity-image-url "${VELOCITY}_combined.png" \
-  --video-url "${VIDEO_BASE}_combined.avi" \
-  --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_combined" --type combined
+for option in "${options_array[@]}"
+do
+    python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
+            --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
+            --gas-fraction-image-url "${GAS_FRACTION}_${option}.png" \
+            --velocity-image-url "${VELOCITY}_${option}.png" \
+            --video-url "${VIDEO_BASE}_${option}.avi" \
+            --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_${option}" \
+            --type $option
+done
 
 
 ## Plot results
@@ -123,16 +110,12 @@ export GAS_FRACTION="${BASE}/${ES_INDEX}/${dir}/gafraction_${BRANCH}_${COMMIT_HA
 export VELOCITY="${BASE}/${ES_INDEX}/${dir}/velocity_${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
 echo "Plot locations: ${GAS_FRACTION} ${VELOCITY}"
 
-python3 $VELOCITY_COMPARE -pfp "flubed*" --outfile "${VELOCITY}.png"
-python3 $VELOCITY_COMPARE -pfp "adapt*" --outfile "${VELOCITY}_adapt.png"
-python3 $VELOCITY_COMPARE -pfp "morton*" --outfile "${VELOCITY}_morton.png"
-python3 $VELOCITY_COMPARE -pfp "combined*" --outfile "${VELOCITY}_combined.png"
 
-python3 $GAS_COMPARE -pfp "flubed*" --outfile "${GAS_FRACTION}.png"
-python3 $GAS_COMPARE -pfp "adapt*" --outfile "${GAS_FRACTION}_adapt.png"
-python3 $GAS_COMPARE -pfp "morton*" --outfile "${GAS_FRACTION}_morton.png"
-python3 $GAS_COMPARE -pfp "combined*" --outfile "${GAS_FRACTION}_combined.png"
-
+for option in "${options_array[@]}"
+do
+    python3 $VELOCITY_COMPARE -pfp "${option}*" --outfile "${VELOCITY}_${option}.png";
+    python3 $GAS_COMPARE -pfp "${option}*" --outfile "${GAS_FRACTION}_${option}.png";
+done
 
 
 ## Paraview Videos
@@ -142,10 +125,9 @@ deactivate
 export PVPYTHON=/projects/jenkins/ParaView-5.8.0-osmesa-MPI-Linux-Python3.7-64bit/bin/pvpython
 export PARAVIEW_ANIMATE=/projects/holtat/CICD/exa_cicd/python_scripts/paraview_animation.py
 
-declare -a options_array=("flubed" "morton" "adapt" "combined")
-
 for option in "${options_array[@]}"
-    do $PVPYTHON paraview_animation.py \
+do
+    $PVPYTHON paraview_animation.py \
           --outfile="/projects/jenkins/videos/${ES_INDEX}/${dir}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}_${option}.avi" \
           --plot-file-prefix="/scratch/summit/holtat/fluid-bed/np_0024/${option}" \
           --low-index=0 \

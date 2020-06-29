@@ -112,7 +112,7 @@ curl --insecure -u es_name:es_pass -X PUT "https://elastic1.rc.int.colorado.edu:
 '
 
 # Update index, adding fields
-curl --insecure -u es_name:es_pass -X PUT "https://elastic1.rc.int.colorado.edu:9200/mfix-hcs-5k/_mapping/_doc" -H 'Content-Type: application/json' -d'
+curl --insecure -u es_name:es_pass -X PUT "https://elastic1.rc.int.colorado.edu:9200/mfix-fluid-bed/_mapping/_doc" -H 'Content-Type: application/json' -d'
 {
   "properties": {
     "image_url" : { "type" : "keyword" }
