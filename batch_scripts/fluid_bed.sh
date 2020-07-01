@@ -127,7 +127,7 @@ export PARAVIEW_ANIMATE=/projects/holtat/CICD/exa_cicd/python_scripts/paraview_a
 
 for option in "${options_array[@]}"
 do
-    $PVPYTHON paraview_animation.py \
+    $PVPYTHON $PARAVIEW_ANIMATE \
           --outfile="/projects/jenkins/videos/${ES_INDEX}/${dir}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}_${option}.avi" \
           --plot-file-prefix="/scratch/summit/holtat/fluid-bed/np_0024/${option}" \
           --low-index=0 \
