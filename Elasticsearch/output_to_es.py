@@ -22,6 +22,7 @@ parser.add_argument('--type', dest='type', type=str, default=None, help='Special
 parser.add_argument('--validation-image-url', dest='validation_image_url', type=str, default=None, help='HCS validation image url')
 parser.add_argument('--gas-fraction-image-url', dest='gas_fraction_image_url', type=str, default=None, help='Fluid bed gas-fraction validation image url')
 parser.add_argument('--velocity-image-url', dest='velocity_image_url', type=str, default=None, help='Fluid bed velocity validation image url')
+parser.add_argument('--video-url', dest='video_url', type=str, default=None, help='Validation paraview video')
 args = parser.parse_args()
 
 
@@ -208,10 +209,13 @@ builder = MfixElasticsearchMessageBuilder(args.es_index, args.mfix_output_data,
                         mfixdat_filepath, inputs_filepath, args.sing_image_path,
                         validation_image_url=args.validation_image_url,
                         gas_fraction_image_url=args.gas_fraction_image_url,
-                        velocity_image_url=args.velocity_image_url)
+                        velocity_image_url=args.velocity_image_url,
+                        video_url=args.video_url)
+                        
 builder.build_mfix_elasticsearch_message()
 print(vars(builder))
 builder.index_mfix_message()
+
 
 
 ## Index results into elasticsearch
