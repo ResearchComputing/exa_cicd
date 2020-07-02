@@ -147,6 +147,7 @@ class MfixElasticsearchMessageBuilder:
             filename = filename[0:-(len(self.message['type'])+1)]
         else:
             self.message['type'] = 'normal'
+            filename = filename[0:-(len(self.message['type'])+1)]
 
         self.message['np'] = int(filename.split('_')[-1])
 
@@ -211,7 +212,7 @@ builder = MfixElasticsearchMessageBuilder(args.es_index, args.mfix_output_data,
                         gas_fraction_image_url=args.gas_fraction_image_url,
                         velocity_image_url=args.velocity_image_url,
                         video_url=args.video_url)
-                        
+
 builder.build_mfix_elasticsearch_message()
 print(vars(builder))
 builder.index_mfix_message()
