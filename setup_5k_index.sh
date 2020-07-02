@@ -120,3 +120,13 @@ curl --insecure -u es_name:es_pass -X PUT "https://elastic1.rc.int.colorado.edu:
   }
 }
 '
+
+
+# Update a specific field value
+curl --insecure -u es_name:es_pass -X POST "https://elastic1.rc.int.colorado.edu:9200/mfix-fluid-bed/_doc/___ID_VALUE___/_update?pretty" -H 'Content-Type: application/json' -d'
+{
+    "doc" : {
+        "video_url" : "/videos/mfix-fluid-bed/np_0024/phase2-develop_2773f3b_2020-07-01_16-38-44_adapt.avi"
+    }
+}
+'
