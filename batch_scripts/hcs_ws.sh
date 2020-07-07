@@ -113,3 +113,42 @@ do
     done
 done
 #python3 /home/aaron/exa_cicd/python_scripts/hcs_analyze.py -pfp "plt*" -np 5050 -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld 64 --outfile haff.png
+
+
+## Paraview Videos
+ml purge
+deactivate
+
+export PVPYTHON=/projects/jenkins/ParaView-5.8.0-osmesa-MPI-Linux-Python3.7-64bit/bin/pvpython
+export PARAVIEW_ANIMATE=/projects/holtat/CICD/exa_cicd/python_scripts/paraview_animation.py
+
+
+for dir in "${dir_array[@]}"
+do
+    case "${dir}" in
+        np_0001)
+            export focal_point=0.0032
+            export position=0.025
+            ;;
+        np_0008)
+            export focal_point=0.0064
+            export position=0.050
+            ;;
+        np_0027)
+            export focal_point=0.0096
+            export position=0.080
+            ;;
+    esac
+
+    for option in "${options_array[@]}"
+    do
+        $PVPYTHON $PARAVIEW_ANIMATE \
+              --outfile="/projects/jenkins/videos/${ES_INDEX}/${dir}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}_${option}.avi" \
+              --plot-file-prefix="/scratch/summit/holtat/hcs_5k_ws/${dir}/${option}" \
+              --low-index=0 \
+              --high-index=10000 \
+              --index-step=500 \
+              --camera-focal-point $focal_point $focal_point $focal_point \
+              --camera-position $focal_point $focal_point $position
+    done
+done
