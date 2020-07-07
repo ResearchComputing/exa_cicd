@@ -30,7 +30,12 @@ export MFIX=/app/mfix/build/mfix
 export IMAGE=/scratch/summit/holtat/singularity/mfix-exa_${BRANCH}_${COMMIT_HASH}.sif
 export MPIRUN=/pl/active/mfix/holtat/openmpi-2.1.6-install/bin/mpirun
 
-for dir in {np_0001,np_0008,np_0027}; do
+declare -a options_array=("normal" "morton" "adapt" "combined")
+declare -a dir_array=("np_0001" "np_0008" "np_0027")
+
+for dir in "${dir_array[@]}"
+do
+
 
     # Make directory if needed
     mkdir -p $WD/$dir
@@ -41,15 +46,10 @@ for dir in {np_0001,np_0008,np_0027}; do
     np=$((10#$np))
 
     # Run default then timestepping
-    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs >> ${RUN_DATE}_${COMMIT_HASH}_${dir}"
+    $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs amr.plot_file=normal >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_normal"
     $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.use_tstepadapt=1 amr.plot_file=adapt >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_adapt"
     $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.sorting_type=1 amr.plot_file=morton >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_morton"
     $MPIRUN -np $np singularity exec $IMAGE bash -c "$MFIX inputs mfix.sorting_type=1 mfix.use_tstepadapt=1 amr.plot_file=combined >> ${RUN_DATE}_${COMMIT_HASH}_${dir}_combined"
-
-    #
-
-##mfix.use_tstepadapt=0
-    #Consider mpirun -np $np --map-by node ...
 
 done
 
@@ -63,31 +63,20 @@ cd /projects/holtat/CICD/exa_cicd/Elasticsearch
 git pull
 
 ## Index results in ES
-for dir in {np_0001,np_0008,np_0027}; do
-
+for dir in "${dir_array[@]}"
+do
+    export VIDEO_BASE="/videos/${ES_INDEX}/${dir}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
     export URL_BASE="/images/${ES_INDEX}/${dir}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
+    export np=${dir:(-4)}
 
-    np=${dir:(-4)}
-    python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
-      --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-      --validation-image-url "${URL_BASE}.png" \
-      --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}"
-
-    python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
-      --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-      --validation-image-url "${URL_BASE}_adapt.png" \
-      --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_adapt" --type adapt
-
-    python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
-      --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-      --validation-image-url "${URL_BASE}_morton.png" \
-      --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_morton" --type morton
-
-    python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
-      --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-      --validation-image-url "${URL_BASE}_combined.png" \
-      --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_combined" --type combined
-
+    for option in "${options_array[@]}"
+    do
+        python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
+          --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
+          --validation-image-url "${URL_BASE}.png" \
+          --video-url "${VIDEO_BASE}_${option}.avi" \
+          --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}" --type $option
+    done
 done
 
 #http://mfix-nginx.rc.int.colorado.edu:80{{rawValue}}
@@ -95,7 +84,8 @@ done
 
 ## Plot results
 export HCS_ANALYZE=/projects/holtat/CICD/exa_cicd/python_scripts/hcs_analyze.py
-for dir in {np_0001,np_0008,np_0027}; do
+for dir in "${dir_array[@]}"
+do
 
     export PLOTFILE="/projects/jenkins/images/${ES_INDEX}/${dir}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
     echo "Plot location: ${PLOTFILE}"
@@ -117,11 +107,9 @@ for dir in {np_0001,np_0008,np_0027}; do
     # Each lin in particle_input.dat represents a particle (minus header)
     export NUM_PARTICLES=$(($(wc -l particle_input.dat | awk '{print $1;}')-1))
 
-    python3 $HCS_ANALYZE -pfp "plt*" -np $NUM_PARTICLES -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld $LD --outfile "${PLOTFILE}.png"
-    python3 $HCS_ANALYZE -pfp "adapt*" -np $NUM_PARTICLES -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld $LD --outfile "${PLOTFILE}_adapt.png"
-    python3 $HCS_ANALYZE -pfp "morton*" -np $NUM_PARTICLES -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld $LD --outfile "${PLOTFILE}_morton.png"
-    python3 $HCS_ANALYZE -pfp "combined*" -np $NUM_PARTICLES -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld $LD --outfile "${PLOTFILE}_combined.png"
-
-
+    for option in "${options_array[@]}"
+    do
+        python3 $HCS_ANALYZE -pfp "${option}*" -np $NUM_PARTICLES -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld $LD --outfile "${PLOTFILE}_${option}.png"
+    done
 done
 #python3 /home/aaron/exa_cicd/python_scripts/hcs_analyze.py -pfp "plt*" -np 5050 -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld 64 --outfile haff.png
