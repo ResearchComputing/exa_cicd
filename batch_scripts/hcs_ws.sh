@@ -87,8 +87,8 @@ export HCS_ANALYZE=/projects/holtat/CICD/exa_cicd/python_scripts/hcs_analyze.py
 for dir in "${dir_array[@]}"
 do
 
-    export PLOTFILE="/projects/jenkins/images/${ES_INDEX}/${dir}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
-    echo "Plot location: ${PLOTFILE}"
+    export PLOTFILE_BASE="/projects/jenkins/images/${ES_INDEX}/${dir}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}"
+    echo "Plot locations: ${PLOTFILE_BASE}"
 
     cd $WD/$dir
     rm -rf plt*.old*
@@ -109,7 +109,7 @@ do
 
     for option in "${options_array[@]}"
     do
-        python3 $HCS_ANALYZE -pfp "${option}*" -np $NUM_PARTICLES -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld $LD --outfile "${PLOTFILE}_${option}.png"
+        python3 $HCS_ANALYZE -pfp "${option}*" -np $NUM_PARTICLES -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld $LD --outfile "${PLOTFILE_BASE}_${option}.png"
     done
 done
 #python3 /home/aaron/exa_cicd/python_scripts/hcs_analyze.py -pfp "plt*" -np 5050 -e 0.8 -T0 1000 -diap 0.01 --rho-s 1.0 --rho-g 0.001 --mu-g 0.0002 --ld 64 --outfile haff.png
