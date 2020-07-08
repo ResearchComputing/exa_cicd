@@ -17,6 +17,7 @@ curl --insecure -u es_name:es_pass -X PUT "https://elastic1.rc.int.colorado.edu:
         "git_commit_hash": { "type": "keyword" },
         "git_branch": { "type": "keyword" },
         "singularity_def_file": { "type": "text" },
+        "video_url" : { "type" : "keyword" },
         "walltime": { "type": "float" },
         "calc_particle_collisions()": { "type": "float" },
         "des_time_loop()": { "type": "float" },
@@ -52,13 +53,7 @@ curl --insecure -u es_name:es_pass -X PUT "https://elastic1.rc.int.colorado.edu:
 
 
 
-
-
-
 ###curl --insecure -u es_name:es_pass -X DELETE "https://elastic1.rc.int.colorado.edu:9200/mfix-hcs-5k"###
-
-
-
 
 
 
@@ -120,6 +115,8 @@ curl --insecure -u es_name:es_pass -X PUT "https://elastic1.rc.int.colorado.edu:
   }
 }
 '
+
+
 
 
 # Update a specific field value
