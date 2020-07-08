@@ -75,7 +75,7 @@ do
           --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
           --validation-image-url "${URL_BASE}.png" \
           --video-url "${VIDEO_BASE}_${option}.avi" \
-          --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}" --type $option
+          --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_${option}" --type $option
     done
 done
 
@@ -146,8 +146,8 @@ do
               --outfile="/projects/jenkins/videos/${ES_INDEX}/${dir}/${BRANCH}_${COMMIT_HASH}_${RUN_DATE}_${option}.avi" \
               --plot-file-prefix="/scratch/summit/holtat/hcs_5k_ws/${dir}/${option}" \
               --low-index=0 \
-              --high-index=10000 \
-              --index-step=500 \
+              --high-index=900 \
+              --index-step=25 \
               --camera-focal-point $focal_point $focal_point $focal_point \
               --camera-position $focal_point $focal_point $position
     done
