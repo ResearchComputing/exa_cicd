@@ -41,6 +41,13 @@ do
     mkdir -p $WD/$dir
     cd $WD/$dir
     pwd
+
+    #Remove old results
+    rm -rf flubed*
+    rm -rf normal*
+    rm -rf adapt*
+    rm -rf morton*
+    rm -rf combined*
     # Get np from dir
     np=${dir:(-4)}
     np=$((10#$np))
@@ -91,10 +98,7 @@ do
     echo "Plot locations: ${PLOTFILE_BASE}"
 
     cd $WD/$dir
-    rm -rf plt*.old*
-    rm -rf adapt*.old*
-    rm -rf morton*.old*
-    rm -rf combined*.old*
+    rm -rf *.old.*
 
     # Get processor count without leading zeros
     num_process=${dir:(-4)}

@@ -42,6 +42,8 @@ export dir=np_0024
 # Make directory if needed
 mkdir -p $WD/$dir
 cd $WD/$dir
+
+#Remove old results
 rm -rf flubed*
 rm -rf normal*
 rm -rf adapt*
