@@ -80,7 +80,7 @@ do
     do
         python3 output_to_es.py --es-index $ES_INDEX --work-dir $WD --np $np \
           --git-hash $COMMIT_HASH --git-branch $BRANCH --sing-image-path $IMAGE \
-          --validation-image-url "${URL_BASE}.png" \
+          --validation-image-url "${URL_BASE}_${option}.png" \
           --video-url "${VIDEO_BASE}_${option}.avi" \
           --mfix-output-path "$WD/$dir/${RUN_DATE}_${COMMIT_HASH}_${dir}_${option}" --type $option
     done
