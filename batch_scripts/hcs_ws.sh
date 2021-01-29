@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --nodes 2
 #SBATCH --exclusive
-#SBATCH --account ucb1_summit3
+#SBATCH --account ucb1_summit4
 #SBATCH --time 08:00:00
 #SBATCH --output /scratch/summit/holtat/exa_slurm_output/hcs_5k_ws_%j
 

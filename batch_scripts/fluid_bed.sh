@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --nodes 4
 #SBATCH --exclusive
-#SBATCH --account ucb1_summit3
+#SBATCH --account ucb1_summit4
 #SBATCH --time 16:00:00
 #SBATCH --output /scratch/summit/holtat/exa_slurm_output/fluid_bed_%j
 
