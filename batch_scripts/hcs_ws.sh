@@ -21,7 +21,7 @@ cp -r --no-clobber /projects/holtat/CICD/hcs_5k_ws/* $WD
 source /etc/profile.d/lmod.sh
 # Custom openmpi 2.1.2 module in petalibrary
 ml use /pl/active/mfix/holtat/modules
-ml singularity/3.3.0 gcc/8.2.0 openmpi_2.1.6
+ml singularity/3.6.4 gcc/8.2.0 openmpi_2.1.6
 
 cd /scratch/summit/holtat/singularity
 singularity pull --allow-unsigned --force library://aarontholt/default/mfix-exa:${BRANCH}_${COMMIT_HASH}
