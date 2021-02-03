@@ -4,7 +4,7 @@ Config for working with Elasticsearch
 
 conf = {}
 conf['elasticsearch'] = {}
-conf['elasticsearch']['host'] = 'elastic1.rc.int.colorado.edu'
+conf['elasticsearch']['host'] = '10.225.227.134'#'elastic1.rc.int.colorado.edu'
 conf['elasticsearch']['port'] = 9200
 conf['elasticsearch']['use_ssl'] = True
 conf['elasticsearch']['verify_certificates'] = False

@@ -83,7 +83,7 @@ curl --insecure -u es_name:es_pass -X PUT "https://elastic1.rc.int.colorado.edu:
         "walltime": { "type": "float" },
         "gas_fraction_image_url" : { "type" : "keyword" },
         "velocity_image_url" : { "type" : "keyword" },
-        "video_url" : { "type" : "keyword" }
+        "video_url" : { "type" : "keyword" },
         "calc_particle_collisions()": { "type": "float" },
         "des_time_loop()": { "type": "float" },
         "FabArray::ParallelCopy()": { "type": "float" },
