@@ -26,7 +26,7 @@ mv /mfix /app
 cd /app/mfix
 mkdir build
 cd build
-cmake -DENABLE_TINY_PROFILE=ON ..
+cmake -DAMReX_TINY_PROFILE=ON ..
 make -j4
 
 # Edit command prompt so its short and shows you in a container
