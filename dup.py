@@ -36,9 +36,9 @@ def parse_line(my_str):
 def multiply_vals(line, scale):
     '''Takes a list of 3 strings and multiplies it
     by integer scalers (strings are converted to floats)'''
-    line[2] = str(float(line[2])*scale[0])
-    line[3] = str(float(line[3])*scale[1])
-    line[4] = str(float(line[4])*scale[2])
+    line[2] = str(round(float(line[2])*scale[0], 10))
+    line[3] = str(round(float(line[3])*scale[1], 10))
+    line[4] = str(round(float(line[4])*scale[2], 10))
     return line
 
 def get_geometry(filename):
@@ -72,11 +72,11 @@ def update_geometry(orig_mfixdat, new_mfixdat,
                     dims, scale):
     '''Update mfix.dat and input file for hcs case
     based on the given scale vector'''
-    
+
 
     with open(orig_inputs, 'r') as of, open(new_inputs, 'w') as nf:
         for line in of:
-            if 'geometry.prob_hi' in line:
+            if 'geometry.prob_hi' or 'regions.full-domain.hi' in line:
                 line = parse_line(line)
                 line = multiply_vals(line, scale)
                 nf.write(' '.join(line) + '\n')
@@ -90,10 +90,10 @@ def update_geometry(orig_mfixdat, new_mfixdat,
 
         of.close()
         nf.close()
-    
+
     with open(orig_mfixdat, 'r') as of, open(new_mfixdat, 'w') as nf:
         for line in of:
-            if 'IC_X_e' in line: 
+            if 'IC_X_e' in line:
                 line = parse_line(line)
                 line[2] = str(float(line[2])*scale[0])
                 nf.write(' '.join(line) + '\n')
@@ -147,19 +147,19 @@ def duplicate(particles, num_particles, scale, dims): #,direction)
     scale  = [x, y, z] - integer list with amount to scale
     dimension by.
     dims = [x, y, z] - dimensions of original problem'''
-    
+
     new_particles = []
 
-    for lc3 in range(0, scale[2]):    
+    for lc3 in range(0, scale[2]):
         for lc2 in range(0, scale[1]):
             for lc1 in range(0, scale[0]):
-            
+
                 # Don't append original particle
                 if lc3 == 0 and lc2 == 0 and lc1 == 0:
                     continue
-            
+
                 for lc in range(0, num_particles):
-                
+
                     new_particles.append([
                         1,
                         particles[lc][1] + float(lc1)*dims[0],
@@ -175,13 +175,13 @@ def duplicate(particles, num_particles, scale, dims): #,direction)
     return orig_particles+new_particles, num_particles
 
 
-#pathlib.Path(new).mkdir(parents=True, exist_ok=True) 
+#pathlib.Path(new).mkdir(parents=True, exist_ok=True)
 
 dims = get_geometry(orig_inputs)
 orig_particles, orig_num_particles = read_particle_input(orig_particle_file)
 print("Original num particles = ", orig_num_particles)
 
-for ii in range(0, len(new)): 
+for ii in range(0, len(new)):
 
     new_dir = new[ii]
     pathlib.Path(new_dir).mkdir(parents=True, exist_ok=True)
@@ -189,17 +189,17 @@ for ii in range(0, len(new)):
     new_p_file = new_dir + '/particle_input.dat'
     new_mfixdat = new_dir + '/mfix.dat'
     new_inputs = new_dir + '/inputs'
-    
-    
+
+
     update_geometry(orig_mfixdat, new_mfixdat,
                     orig_inputs, new_inputs,
                     dims, scale)
-   
+
     new_particles, new_num_particles = duplicate(orig_particles, orig_num_particles, scale, dims)
     #print("Filename, New num particles = ", new_p_file, new_num_particles)
     #print(len(particles))
     #print(particles[-1])
-    
+
     write_particle_file(new_particles, new_p_file)
     print("Filename, New num particles = ", new_p_file, new_num_particles)
 
